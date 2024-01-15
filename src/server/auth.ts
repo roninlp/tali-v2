@@ -9,6 +9,7 @@ import GitHubProvider from "next-auth/providers/github";
 import { env } from "@/env";
 import { db } from "@/server/db";
 import { sqliteTable } from "@/server/db/schema";
+import { type Adapter } from "next-auth/adapters";
 
 /**
  * Module augmentation for `next-auth` types. Allows us to add custom properties to the `session`
@@ -46,7 +47,7 @@ export const authOptions: NextAuthOptions = {
       },
     }),
   },
-  adapter: DrizzleAdapter(db, sqliteTable),
+  adapter: DrizzleAdapter(db, sqliteTable) as Adapter,
   providers: [
     // DiscordProvider({
     //   clientId: env.DISCORD_CLIENT_ID,
