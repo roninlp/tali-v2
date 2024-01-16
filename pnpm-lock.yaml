@@ -80,6 +80,9 @@ dependencies:
   date-fns:
     specifier: ^3.2.0
     version: 3.2.0
+  date-fns-jalali:
+    specifier: 3.0.6-0
+    version: 3.0.6-0
   drizzle-orm:
     specifier: ^0.29.3
     version: 0.29.3(@libsql/client@0.4.0-pre.7)(@planetscale/database@1.13.0)(@types/react@18.2.47)(mysql2@3.7.0)(react@18.2.0)
@@ -2732,6 +2735,10 @@ packages:
   /data-uri-to-buffer@4.0.1:
     resolution: {integrity: sha512-0R9ikRb668HB7QDxT1vkpuUBtqc53YyAwMwGeUFKRojY/NWKvdZ+9UYtRfGmhqNbRkTSVpMbmyhXipFFv2cb/A==}
     engines: {node: '>= 12'}
+
+  /date-fns-jalali@3.0.6-0:
+    resolution: {integrity: sha512-se0yC2UapQxI+GW9rnJz3C94UtS/LuOF3Fgrz1Ilb6Cjnu+yHUTxNriTIaFQDCg5EgsSJ9N0jRolWNY5DcqBkw==}
+    dev: false
 
   /date-fns@3.2.0:
     resolution: {integrity: sha512-E4KWKavANzeuusPi0jUjpuI22SURAznGkx7eZV+4i6x2A+IZxAMcajgkvuDAU1bg40+xuhW1zRdVIIM/4khuIg==}

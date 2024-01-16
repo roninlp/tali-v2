@@ -1,8 +1,7 @@
-import Link from "next/link";
-
-import { buttonVariants } from "@/components/ui/button";
 import { getServerAuthSession } from "@/server/auth";
 import { api } from "@/trpc/server";
+import SignIn from "./_components/sign-in";
+import SignOut from "./_components/sign-out";
 import { ModeToggle } from "./_components/theme-toggle";
 
 export default async function Home() {
@@ -13,12 +12,7 @@ export default async function Home() {
     <main className="flex min-h-screen flex-col items-center bg-background text-foreground">
       <div className="flex w-full justify-between px-16 py-8">
         <div className="flex items-center justify-center gap-4">
-          <Link
-            href={session ? "/api/auth/signout" : "/api/auth/signin"}
-            className={buttonVariants({ variant: "outline" })}
-          >
-            {session ? "Sign out" : "Sign in"}
-          </Link>
+          {session ? <SignOut /> : <SignIn />}
           <p className="text-center text-foreground">
             {session && <span>Logged in as {session.user?.name}</span>}
           </p>
@@ -27,7 +21,7 @@ export default async function Home() {
       </div>
       <div className="container flex flex-col items-center justify-center gap-12 px-4 py-16 ">
         <h1 className="text-7xl font-extrabold tracking-tight sm:text-[5rem]">
-          <span className="bg-gradient-to-b from-[#5c6cf7] to-[#0522c7] bg-clip-text text-transparent">
+          <span className="bg-gradient-to-l from-[#5c6cf7] to-[#ab28f7] bg-clip-text text-transparent">
             TaLi
           </span>{" "}
           App
