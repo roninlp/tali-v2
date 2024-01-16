@@ -18,6 +18,9 @@ const config = {
       },
     },
     extend: {
+      fontFamily: {
+        vazir: "var(--font-vazir)",
+      },
       colors: {
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",
