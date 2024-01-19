@@ -1,10 +1,11 @@
-import { sql } from "drizzle-orm";
+import { relations, sql } from "drizzle-orm";
 import {
   integer,
   primaryKey,
   sqliteTableCreator,
   text,
 } from "drizzle-orm/sqlite-core";
+import { createInsertSchema, createSelectSchema } from "drizzle-zod";
 import { type AdapterAccount } from "next-auth/adapters";
 
 /**
@@ -32,6 +33,11 @@ export const users = sqliteTable("user", {
   emailVerified: integer("emailVerified", { mode: "timestamp_ms" }),
   image: text("image"),
 });
+
+export const usersRelations = relations(users, ({ many }) => ({
+  projects: many(projects),
+  tasks: many(tasks),
+}));
 
 export const accounts = sqliteTable("account", {
   userId: text("userId")
@@ -71,9 +77,8 @@ export const verificationTokens = sqliteTable(
 );
 
 export const projects = sqliteTable("project", {
-  id: text("id").notNull().primaryKey(),
+  id: integer("id").notNull().primaryKey(),
   name: text("name").notNull(),
-  isCompleted: integer("isCompleted", { mode: "boolean" }).default(false),
   createdById: text("createdById").notNull(),
   createdAt: text("created_at")
     .notNull()
@@ -81,23 +86,40 @@ export const projects = sqliteTable("project", {
   updatedAt: text("updated_at")
     .notNull()
     .default(sql`CURRENT_TIMESTAMP`),
-  userId: text("user_id").references(() => users.id),
+  userId: text("user_id"),
 });
 
+export const projectsRelations = relations(projects, ({ many, one }) => ({
+  users: one(users, { fields: [projects.userId], references: [users.id] }),
+  tasks: many(tasks),
+}));
+
 export const tasks = sqliteTable("task", {
-  id: integer("id").primaryKey().notNull(),
+  id: integer("id").notNull().primaryKey(),
   name: text("name").notNull(),
   description: text("description"),
   isCompleted: integer("isCompleted", { mode: "boolean" }).default(false),
   createdById: text("createdById").notNull(),
-  dueDate: text("dueDate")
-    .notNull()
-    .default(sql`CURRENT_TIMESTAMP`),
+  dueDate: integer("dueDate").notNull(),
   createdAt: text("created_at")
     .notNull()
     .default(sql`CURRENT_TIMESTAMP`),
   updatedAt: text("updated_at")
     .notNull()
     .default(sql`CURRENT_TIMESTAMP`),
-  projectId: text("project_id").references(() => projects.id),
+  projectId: integer("project_id"),
 });
+
+export const tasksRelations = relations(tasks, ({ one }) => ({
+  projects: one(projects, {
+    fields: [tasks.projectId],
+    references: [projects.id],
+  }),
+  users: one(users, { fields: [tasks.createdById], references: [users.id] }),
+}));
+
+export const insertTaskSchema = createInsertSchema(tasks);
+export const selectTaskSchema = createSelectSchema(tasks);
+
+export const insertProjectSchema = createInsertSchema(projects);
+export const selectProjectSchema = createSelectSchema(projects);

@@ -86,6 +86,9 @@ dependencies:
   drizzle-orm:
     specifier: ^0.29.3
     version: 0.29.3(@libsql/client@0.4.0-pre.7)(@planetscale/database@1.13.0)(@types/react@18.2.47)(mysql2@3.7.0)(react@18.2.0)
+  drizzle-zod:
+    specifier: ^0.5.1
+    version: 0.5.1(drizzle-orm@0.29.3)(zod@3.22.4)
   embla-carousel-react:
     specifier: 8.0.0-rc19
     version: 8.0.0-rc19(react@18.2.0)
@@ -149,8 +152,8 @@ devDependencies:
     specifier: ^10.4.14
     version: 10.4.16(postcss@8.4.33)
   drizzle-kit:
-    specifier: ^0.20.9
-    version: 0.20.11
+    specifier: ^0.20.13
+    version: 0.20.13
   embla-carousel:
     specifier: 8.0.0-rc19
     version: 8.0.0-rc19
@@ -224,8 +227,8 @@ packages:
     dependencies:
       regenerator-runtime: 0.14.1
 
-  /@drizzle-team/studio@0.0.37:
-    resolution: {integrity: sha512-LZyAPGJBX43jsrVZh7+w1Jig/BC6PJx63ReHUYK+GRQYNY9UJNlPXmn1uC/LMRX+A7JwYM4Sr4Fg/hnJSqlfgA==}
+  /@drizzle-team/studio@0.0.39:
+    resolution: {integrity: sha512-c5Hkm7MmQC2n5qAsKShjQrHoqlfGslB8+qWzsGGZ+2dHMRTNG60UuzalF0h0rvBax5uzPXuGkYLGaQ+TUX3yMw==}
     dependencies:
       superjson: 2.2.1
     dev: true
@@ -2850,11 +2853,11 @@ packages:
       wordwrap: 1.0.0
     dev: true
 
-  /drizzle-kit@0.20.11:
-    resolution: {integrity: sha512-s03Zi72fKPAWI3zzfe4cbm6RfMs3msv3xlv4pz605RVxheJtYUAHyX+wZEe3u6EyhVvhVj1eQ9Bqzv/FP+xRlg==}
+  /drizzle-kit@0.20.13:
+    resolution: {integrity: sha512-j9oZSQXNWG+KBJm0Sg3S/zJpncHGKnpqNfFuM4NUxUMGTcihDHhP9SW6Jncqwb5vsP1Xm0a8JLm3PZUIspC/oA==}
     hasBin: true
     dependencies:
-      '@drizzle-team/studio': 0.0.37
+      '@drizzle-team/studio': 0.0.39
       '@esbuild-kit/esm-loader': 2.6.5
       camelcase: 7.0.1
       chalk: 5.3.0
@@ -2948,6 +2951,16 @@ packages:
       '@types/react': 18.2.47
       mysql2: 3.7.0
       react: 18.2.0
+    dev: false
+
+  /drizzle-zod@0.5.1(drizzle-orm@0.29.3)(zod@3.22.4):
+    resolution: {integrity: sha512-C/8bvzUH/zSnVfwdSibOgFjLhtDtbKYmkbPbUCq46QZyZCH6kODIMSOgZ8R7rVjoI+tCj3k06MRJMDqsIeoS4A==}
+    peerDependencies:
+      drizzle-orm: '>=0.23.13'
+      zod: '*'
+    dependencies:
+      drizzle-orm: 0.29.3(@libsql/client@0.4.0-pre.7)(@planetscale/database@1.13.0)(@types/react@18.2.47)(mysql2@3.7.0)(react@18.2.0)
+      zod: 3.22.4
     dev: false
 
   /eastasianwidth@0.2.0:

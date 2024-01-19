@@ -5,7 +5,9 @@ import {
   protectedProcedure,
   publicProcedure,
 } from "@/server/api/trpc";
-import { tasks } from "@/server/db/schema";
+import { insertTaskSchema, tasks } from "@/server/db/schema";
+import { addMonths, getUnixTime, startOfMonth } from "date-fns-jalali";
+import { and, between, eq } from "drizzle-orm";
 
 export const postRouter = createTRPCRouter({
   hello: publicProcedure
@@ -17,25 +19,42 @@ export const postRouter = createTRPCRouter({
     }),
 
   create: protectedProcedure
-    .input(z.object({ name: z.string().min(1) }))
+    .input(insertTaskSchema)
     .mutation(async ({ ctx, input }) => {
       await ctx.db.insert(tasks).values({
         name: input.name,
+        dueDate: input.dueDate,
         createdById: ctx.session.user.id,
       });
     }),
 
-  getAll: protectedProcedure.query(({ ctx }) => {
-    return ctx.db.query.tasks.findMany({
-      orderBy: (tasks, { desc }) => [desc(tasks.createdAt)],
-    });
-  }),
-
-  // getThisMonth: protectedProcedure
-  //   .input(z.object({ month: z.string() }))
-  //   .query(({ input, ctx }) => {
-  //     return ctx.db.query.tasks.findMany({
-  //       where: (tasks, { eq }) => [eq(tasks.dueDate, input.month)],
-  //     });
-  //   }),
+  getAllTasksOfMonth: protectedProcedure
+    .input(
+      z.object({
+        month: z.number(),
+      }),
+    )
+    .query(async ({ ctx, input }) => {
+      const targerMonthStart = getUnixTime(startOfMonth(input.month));
+      const targetMonthEnd = getUnixTime(
+        addMonths(startOfMonth(input.month), 1),
+      );
+      const tasksForMonth = await ctx.db.query.tasks.findMany({
+        where: and(
+          between(tasks.dueDate, targerMonthStart, targetMonthEnd),
+          eq(tasks.createdById, ctx.session.user.id),
+        ),
+      });
+      // const tasksForMonth = await ctx.db
+      //   .select()
+      //   .from(tasks)
+      //   .innerJoin(projects, eq(tasks.projectId, projects.id))
+      //   .where(
+      //     and(
+      //       eq(projects.userId, ctx.session.user.id),
+      //       between(tasks.dueDate, targerMonthStart, targetMonthEnd),
+      //     ),
+      //   );
+      return tasksForMonth;
+    }),
 });

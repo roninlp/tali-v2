@@ -2,7 +2,11 @@
 import { ModeToggle } from "@/app/_components/theme-toggle";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import { ChevronLeftIcon, ChevronRightIcon } from "@radix-ui/react-icons";
+import {
+  ChevronLeftIcon,
+  ChevronRightIcon,
+  PlusIcon,
+} from "@radix-ui/react-icons";
 import {
   add,
   eachDayOfInterval,
@@ -18,6 +22,7 @@ import {
   startOfWeek,
 } from "date-fns-jalali";
 import { useState } from "react";
+import { AddProjectDialog } from "./add-project-dialog";
 import Day from "./day";
 
 export default function Calendar() {
@@ -51,6 +56,9 @@ export default function Calendar() {
           </span>
           <span>{format(firstDayOfCurrentMonth, "yyyy")}</span>
         </h2>
+        <div>
+          <AddProjectDialog />
+        </div>
         <div className="flex">
           <Button onClick={previousMonth} variant="ghost" size="icon">
             <span className="sr-only">ماه قبل</span>
@@ -80,9 +88,18 @@ export default function Calendar() {
                 !isToday(day) &&
                 !isSameMonth(day, firstDayOfCurrentMonth) &&
                 "opacity-30",
-              "gorup relative flex flex-col items-start gap-1 overflow-clip border-b p-1",
+              "group relative flex flex-col items-start gap-1 overflow-clip border-b p-1",
             )}
           >
+            <Button
+              variant="default"
+              size="icon"
+              className={cn(
+                "group/btn absolute bottom-1 left-1 scale-0 cursor-pointer items-center justify-center transition-all duration-300 ease-in-out group-hover:flex group-hover:scale-100",
+              )}
+            >
+              <PlusIcon className="size-5 scale-100 transition-all group-hover/btn:scale-125" />
+            </Button>
             <Day
               day={day}
               selectedDay={selectedDay}
