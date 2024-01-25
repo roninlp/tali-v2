@@ -1,23 +1,11 @@
 import { z } from "zod";
 
-import {
-  createTRPCRouter,
-  protectedProcedure,
-  publicProcedure,
-} from "@/server/api/trpc";
+import { createTRPCRouter, protectedProcedure } from "@/server/api/trpc";
 import { insertTaskSchema, tasks } from "@/server/db/schema";
-import { addMonths, getUnixTime, startOfMonth } from "date-fns-jalali";
+import { endOfMonth, getUnixTime, startOfMonth } from "date-fns-jalali";
 import { and, between, eq } from "drizzle-orm";
 
 export const postRouter = createTRPCRouter({
-  hello: publicProcedure
-    .input(z.object({ text: z.string() }))
-    .query(({ input }) => {
-      return {
-        greeting: `Hello ${input.text}`,
-      };
-    }),
-
   create: protectedProcedure
     .input(insertTaskSchema)
     .mutation(async ({ ctx, input }) => {
@@ -36,9 +24,8 @@ export const postRouter = createTRPCRouter({
     )
     .query(async ({ ctx, input }) => {
       const targerMonthStart = getUnixTime(startOfMonth(input.month));
-      const targetMonthEnd = getUnixTime(
-        addMonths(startOfMonth(input.month), 1),
-      );
+      const targetMonthEnd = getUnixTime(endOfMonth(input.month));
+
       const tasksForMonth = await ctx.db.query.tasks.findMany({
         where: and(
           between(tasks.dueDate, targerMonthStart, targetMonthEnd),

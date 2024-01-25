@@ -1,5 +1,4 @@
 "use client";
-import { ModeToggle } from "@/app/_components/theme-toggle";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import {
@@ -22,7 +21,7 @@ import {
   startOfWeek,
 } from "date-fns-jalali";
 import { useState } from "react";
-import { AddProjectDialog } from "./add-project-dialog";
+import { AddProjectButton } from "./add-project-dialog";
 import Day from "./day";
 
 export default function Calendar() {
@@ -47,9 +46,8 @@ export default function Calendar() {
   }
 
   return (
-    <div className="mx-auto flex h-full w-full flex-col pt-8">
+    <div className="mx-auto flex h-full w-full flex-grow flex-col">
       <div className="flex items-center gap-2 px-8">
-        <ModeToggle />
         <h2 className="flex-auto px-8 text-3xl text-foreground">
           <span className="font-bold">
             {format(firstDayOfCurrentMonth, "MMMM ")}
@@ -57,7 +55,7 @@ export default function Calendar() {
           <span>{format(firstDayOfCurrentMonth, "yyyy")}</span>
         </h2>
         <div>
-          <AddProjectDialog />
+          <AddProjectButton />
         </div>
         <div className="flex">
           <Button onClick={previousMonth} variant="ghost" size="icon">
