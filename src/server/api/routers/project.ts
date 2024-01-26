@@ -1,29 +1,27 @@
-import { z } from "zod";
-
+import { newProjectSchema } from "@/lib/schemas";
 import {
   createTRPCRouter,
   protectedProcedure,
   publicProcedure,
 } from "@/server/api/trpc";
-import { insertProjectSchema, projects } from "@/server/db/schema";
+import { projects } from "@/server/db/schema";
+import { eq } from "drizzle-orm";
 
-export const postRouter = createTRPCRouter({
-  hello: publicProcedure
-    .input(z.object({ text: z.string() }))
-    .query(({ input }) => {
-      return {
-        greeting: `Hello ${input.text}`,
-      };
-    }),
-
+export const projectRouter = createTRPCRouter({
   create: protectedProcedure
-    .input(insertProjectSchema)
+    .input(newProjectSchema)
     .mutation(async ({ ctx, input }) => {
       await ctx.db.insert(projects).values({
         name: input.name,
         createdById: ctx.session.user.id,
       });
     }),
+
+  getAll: protectedProcedure.query(({ ctx }) => {
+    return ctx.db.query.projects.findMany({
+      where: eq(projects.createdById, ctx.session.user.id),
+    });
+  }),
 
   getLatest: publicProcedure.query(({ ctx }) => {
     return ctx.db.query.projects.findFirst({

@@ -1,6 +1,8 @@
 "use client";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { type Project } from "@/server/db/schema";
 import {
   ChevronLeftIcon,
   ChevronRightIcon,
@@ -24,7 +26,12 @@ import { useState } from "react";
 import { AddProjectButton } from "./add-project-button";
 import Day from "./day";
 
-export default function Calendar() {
+type CalenderProps = {
+  projects: Project[];
+};
+
+export default function Calendar({ projects }: CalenderProps) {
+  // unstable_noStore();
   const today = startOfToday();
   const [selectedDay, setSelectedDay] = useState(today);
   const [currentMonth, setCurrentMonth] = useState(format(today, "MMM-yyyy"));
@@ -45,6 +52,8 @@ export default function Calendar() {
     setCurrentMonth(format(firstDayNextMonth, "MMM-yyyy"));
   }
 
+  console.log(projects);
+
   return (
     <div className="mx-auto flex h-full w-full flex-grow flex-col">
       <div className="flex items-center gap-2 px-8">
@@ -54,6 +63,13 @@ export default function Calendar() {
           </span>
           <span>{format(firstDayOfCurrentMonth, "yyyy")}</span>
         </h2>
+        <div>
+          {projects?.map((project) => (
+            <Badge key={project.id} variant="secondary">
+              {project.name}
+            </Badge>
+          ))}
+        </div>
         <div>
           <AddProjectButton />
         </div>

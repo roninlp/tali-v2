@@ -19,11 +19,23 @@ import {
   DrawerTitle,
   DrawerTrigger,
 } from "@/components/ui/drawer";
+import {
+  Form,
+  FormControl,
+  FormDescription,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { cn } from "@/lib/utils";
+import { type newProjectSchema } from "@/lib/schemas";
+import { api } from "@/trpc/react";
 import { useMediaQuery } from "@uidotdev/usehooks";
-import { useState } from "react";
+import { revalidatePath } from "next/cache";
+import { useState, type Dispatch, type SetStateAction } from "react";
+import { useForm } from "react-hook-form";
+import { type z } from "zod";
 
 export function AddProjectButton() {
   const [open, setOpen] = useState(false);
@@ -60,7 +72,7 @@ export function AddProjectButton() {
             Make changes to your profile here. Click save when you&apos;re done.
           </DrawerDescription>
         </DrawerHeader>
-        <NewProjectForm className="px-4" />
+        <NewProjectForm setOpen={setOpen} className="px-4" />
         <DrawerFooter className="pt-2">
           <DrawerClose asChild>
             <Button variant="outline">Cancel</Button>
@@ -71,14 +83,45 @@ export function AddProjectButton() {
   );
 }
 
-function NewProjectForm({ className }: React.ComponentProps<"form">) {
+interface NewProjectFormProps extends React.ComponentProps<"form"> {
+  setOpen: Dispatch<SetStateAction<boolean>>;
+}
+
+function NewProjectForm({ className, setOpen }: NewProjectFormProps) {
+  const form = useForm<z.infer<typeof newProjectSchema>>({});
+  const create = api.project.create.useMutation({
+    onSuccess: () => {
+      form.reset();
+      revalidatePath("/calendar");
+      setOpen(false);
+    },
+  });
+
+  async function onSubmit({ name }: z.infer<typeof newProjectSchema>) {
+    create.mutate({ name });
+  }
+
   return (
-    <form className={cn("grid items-start gap-4", className)}>
-      <div className="grid gap-2">
-        <Label htmlFor="new-project-name">نام پروژه</Label>
-        <Input type="text" id="new-project-name" placeholder="پروژه ۱" />
-      </div>
-      <Button type="submit">ذخیره</Button>
-    </form>
+    <Form {...form}>
+      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+        <FormField
+          control={form.control}
+          name="name"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>نام پروژه</FormLabel>
+              <FormControl>
+                <Input placeholder="نام پروژه ..." {...field} />
+              </FormControl>
+              <FormDescription>
+                نام پروژه جدیدی که میخواهید اضافه کنید.
+              </FormDescription>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <Button type="submit">ذخیره</Button>
+      </form>
+    </Form>
   );
 }

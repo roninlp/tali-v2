@@ -5,7 +5,7 @@ import { insertTaskSchema, tasks } from "@/server/db/schema";
 import { endOfMonth, getUnixTime, startOfMonth } from "date-fns-jalali";
 import { and, between, eq } from "drizzle-orm";
 
-export const postRouter = createTRPCRouter({
+export const taskRouter = createTRPCRouter({
   create: protectedProcedure
     .input(insertTaskSchema)
     .mutation(async ({ ctx, input }) => {

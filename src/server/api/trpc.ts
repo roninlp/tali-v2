@@ -7,12 +7,14 @@
  * need to use are documented accordingly near the end.
  */
 
+import { experimental_createServerActionHandler } from "@trpc/next/app-dir/server";
 import { initTRPC, TRPCError } from "@trpc/server";
 import superjson from "superjson";
 import { ZodError } from "zod";
 
 import { getServerAuthSession } from "@/server/auth";
 import { db } from "@/server/db";
+import { headers } from "next/headers";
 
 /**
  * 1. CONTEXT
@@ -104,4 +106,16 @@ export const protectedProcedure = t.procedure.use(({ ctx, next }) => {
       session: { ...ctx.session, user: ctx.session.user },
     },
   });
+});
+
+export const createAction = experimental_createServerActionHandler(t, {
+  async createContext() {
+    const session = await getServerAuthSession();
+
+    return {
+      session,
+      headers: headers(),
+      db,
+    };
+  },
 });
