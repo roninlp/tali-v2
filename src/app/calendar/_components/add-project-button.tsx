@@ -54,7 +54,7 @@ export function AddProjectButton() {
               نام پروژه جدید را وارد کنید و روی ذخیره کلیک کنید.
             </DialogDescription>
           </DialogHeader>
-          <NewProjectForm />
+          <NewProjectForm setOpen={setOpen} />
         </DialogContent>
       </Dialog>
     );
