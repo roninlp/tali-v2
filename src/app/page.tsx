@@ -25,7 +25,6 @@ export default async function Home() {
           </span>{" "}
           App
         </h1>
-
         <div className="flex flex-col items-center gap-2">
           <p className="text-2xl text-foreground">
             Project Management and Planning
