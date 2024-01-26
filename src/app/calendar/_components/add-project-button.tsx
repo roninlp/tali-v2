@@ -35,12 +35,11 @@ export function AddProjectButton() {
         <DialogTrigger asChild>
           <Button variant="outline">پروژه جدید</Button>
         </DialogTrigger>
-        <DialogContent className="sm:max-w-[425px]">
+        <DialogContent dir="rtl" className="sm:max-w-[425px]">
           <DialogHeader>
             <DialogTitle>پروژه جدید</DialogTitle>
             <DialogDescription>
-              Make changes to your profile here. Click save when you&apos;re
-              done.
+              نام پروژه جدید را وارد کنید و روی ذخیره کلیک کنید.
             </DialogDescription>
           </DialogHeader>
           <NewProjectForm />
@@ -76,14 +75,10 @@ function NewProjectForm({ className }: React.ComponentProps<"form">) {
   return (
     <form className={cn("grid items-start gap-4", className)}>
       <div className="grid gap-2">
-        <Label htmlFor="email">Email</Label>
-        <Input type="email" id="email" defaultValue="shadcn@example.com" />
+        <Label htmlFor="new-project-name">نام پروژه</Label>
+        <Input type="text" id="new-project-name" placeholder="پروژه ۱" />
       </div>
-      <div className="grid gap-2">
-        <Label htmlFor="username">Username</Label>
-        <Input id="username" defaultValue="@shadcn" />
-      </div>
-      <Button type="submit">Save changes</Button>
+      <Button type="submit">ذخیره</Button>
     </form>
   );
 }

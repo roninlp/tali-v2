@@ -21,7 +21,7 @@ import {
   startOfWeek,
 } from "date-fns-jalali";
 import { useState } from "react";
-import { AddProjectButton } from "./add-project-dialog";
+import { AddProjectButton } from "./add-project-button";
 import Day from "./day";
 
 export default function Calendar() {

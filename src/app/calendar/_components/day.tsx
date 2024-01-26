@@ -32,7 +32,9 @@ export default function Day({
           "flex size-6 items-center justify-center rounded-full text-sm",
         )}
       >
-        <time dateTime={format(day, "yyyy-MM-dd")}>{format(day, "d")}</time>
+        <time className="font-vazir" dateTime={format(day, "yyyy-MM-dd")}>
+          {format(day, "d")}
+        </time>
       </div>
       <div className="relative flex w-full shrink flex-col gap-1"></div>
     </>
