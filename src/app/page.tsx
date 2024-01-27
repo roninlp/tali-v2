@@ -1,5 +1,7 @@
+import { buttonVariants } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { getServerAuthSession } from "@/server/auth";
+import Link from "next/link";
 import SignIn from "./_components/sign-in";
 import SignOut from "./_components/sign-out";
 import { ModeToggle } from "./_components/theme-toggle";
@@ -25,10 +27,16 @@ export default async function Home() {
           </span>{" "}
           App
         </h1>
-        <div className="flex flex-col items-center gap-2">
+        <div className="flex flex-col items-center gap-4">
           <p className="text-2xl text-foreground">
             Project Management and Planning
           </p>
+          <Link
+            className={buttonVariants({ variant: "default" })}
+            href={"/calendar"}
+          >
+            !شروع کن
+          </Link>
         </div>
       </div>
       <div className="container grid grid-cols-3 gap-2">

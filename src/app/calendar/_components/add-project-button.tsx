@@ -32,7 +32,6 @@ import { Input } from "@/components/ui/input";
 import { type newProjectSchema } from "@/lib/schemas";
 import { api } from "@/trpc/react";
 import { useMediaQuery } from "@uidotdev/usehooks";
-import { revalidatePath } from "next/cache";
 import { useState, type Dispatch, type SetStateAction } from "react";
 import { useForm } from "react-hook-form";
 import { type z } from "zod";
@@ -45,7 +44,7 @@ export function AddProjectButton() {
     return (
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogTrigger asChild>
-          <Button variant="outline">پروژه جدید</Button>
+          <Button variant="secondary">پروژه جدید</Button>
         </DialogTrigger>
         <DialogContent dir="rtl" className="sm:max-w-[425px]">
           <DialogHeader>
@@ -63,7 +62,7 @@ export function AddProjectButton() {
   return (
     <Drawer open={open} onOpenChange={setOpen}>
       <DrawerTrigger asChild>
-        <Button variant="outline">پروژه جدید</Button>
+        <Button variant="secondary">پروژه جدید</Button>
       </DrawerTrigger>
       <DrawerContent>
         <DrawerHeader className="text-left">
@@ -89,10 +88,11 @@ interface NewProjectFormProps extends React.ComponentProps<"form"> {
 
 function NewProjectForm({ className, setOpen }: NewProjectFormProps) {
   const form = useForm<z.infer<typeof newProjectSchema>>({});
+  const utils = api.useUtils();
   const create = api.project.create.useMutation({
-    onSuccess: () => {
+    onSuccess: async () => {
+      await utils.project.getAll.invalidate();
       form.reset();
-      revalidatePath("/calendar");
       setOpen(false);
     },
   });
@@ -103,12 +103,15 @@ function NewProjectForm({ className, setOpen }: NewProjectFormProps) {
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+      <form
+        onSubmit={form.handleSubmit(onSubmit)}
+        className="grid items-start gap-4"
+      >
         <FormField
           control={form.control}
           name="name"
           render={({ field }) => (
-            <FormItem>
+            <FormItem className="grid gap-2">
               <FormLabel>نام پروژه</FormLabel>
               <FormControl>
                 <Input placeholder="نام پروژه ..." {...field} />

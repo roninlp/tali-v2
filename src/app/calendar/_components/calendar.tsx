@@ -3,6 +3,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { type Project } from "@/server/db/schema";
+import { api } from "@/trpc/react";
 import {
   ChevronLeftIcon,
   ChevronRightIcon,
@@ -38,6 +39,10 @@ export default function Calendar({ projects }: CalenderProps) {
 
   const firstDayOfCurrentMonth = parse(currentMonth, "MMM-yyyy", new Date());
 
+  const projectQuery = api.project.getAll.useQuery(undefined, {
+    initialData: projects,
+  });
+
   const days = eachDayOfInterval({
     start: startOfWeek(firstDayOfCurrentMonth),
     end: endOfWeek(endOfMonth(firstDayOfCurrentMonth)),
@@ -63,9 +68,9 @@ export default function Calendar({ projects }: CalenderProps) {
           </span>
           <span>{format(firstDayOfCurrentMonth, "yyyy")}</span>
         </h2>
-        <div>
-          {projects?.map((project) => (
-            <Badge key={project.id} variant="secondary">
+        <div className="flex gap-2">
+          {projectQuery?.data?.map((project) => (
+            <Badge key={project.id} variant="default">
               {project.name}
             </Badge>
           ))}
