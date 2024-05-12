@@ -7,6 +7,7 @@ import { api } from "@/trpc/react";
 import {
   ChevronLeftIcon,
   ChevronRightIcon,
+  Cross2Icon,
   PlusIcon,
 } from "@radix-ui/react-icons";
 import {
@@ -33,6 +34,7 @@ type CalenderProps = {
 
 export default function Calendar({ projects }: CalenderProps) {
   // unstable_noStore();
+  const utils = api.useUtils();
   const today = startOfToday();
   const [selectedDay, setSelectedDay] = useState(today);
   const [currentMonth, setCurrentMonth] = useState(format(today, "MMM-yyyy"));
@@ -42,6 +44,26 @@ export default function Calendar({ projects }: CalenderProps) {
   const projectQuery = api.project.getAll.useQuery(undefined, {
     initialData: projects,
   });
+  // const projectQueryKey = getQueryKey(api.project.create);
+
+  // const projectVariables = useMutationState<string>({
+  //   filters: { mutationKey: projectQueryKey, status: "pending" },
+  //   select: (mutation) => mutation.state.data,
+  // });
+
+  const {
+    mutate: deleteProject,
+    isPending,
+    variables,
+  } = api.project.delete.useMutation({
+    onSuccess: async () => {
+      await utils.project.getAll.invalidate();
+    },
+  });
+
+  const handleDeleteProject = (id: number) => {
+    deleteProject({ projectId: id });
+  };
 
   const days = eachDayOfInterval({
     start: startOfWeek(firstDayOfCurrentMonth),
@@ -57,8 +79,6 @@ export default function Calendar({ projects }: CalenderProps) {
     setCurrentMonth(format(firstDayNextMonth, "MMM-yyyy"));
   }
 
-  console.log(projects);
-
   return (
     <div className="mx-auto flex h-full w-full flex-grow flex-col">
       <div className="flex items-center gap-2 px-8">
@@ -68,9 +88,28 @@ export default function Calendar({ projects }: CalenderProps) {
           </span>
           <span>{format(firstDayOfCurrentMonth, "yyyy")}</span>
         </h2>
-        <div className="flex gap-2">
+        <div className="flex flex-wrap gap-2">
           {projectQuery?.data?.map((project) => (
-            <Badge key={project.id} variant="default">
+            <Badge
+              key={project.id}
+              variant="default"
+              className={cn(
+                isPending && variables.projectId === project.id
+                  ? "bg-white"
+                  : "",
+                "group flex items-center justify-center gap-1 py-1",
+              )}
+            >
+              <div className="size-4">
+                <Button
+                  variant="destructive"
+                  size="icon"
+                  onClick={() => handleDeleteProject(project.id)}
+                  className="size-full scale-0 transition-all ease-in-out group-hover:scale-100"
+                >
+                  <Cross2Icon />
+                </Button>
+              </div>
               {project.name}
             </Badge>
           ))}
@@ -107,6 +146,7 @@ export default function Calendar({ projects }: CalenderProps) {
                 !isToday(day) &&
                 !isSameMonth(day, firstDayOfCurrentMonth) &&
                 "opacity-30",
+              isToday(day) && "bg-primary/10",
               "group relative flex flex-col items-start gap-1 overflow-clip border-b p-1",
             )}
           >

@@ -2,14 +2,6 @@
 
 import { Button } from "@/components/ui/button";
 import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
-import {
   Drawer,
   DrawerClose,
   DrawerContent,
@@ -29,7 +21,14 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 import { type newProjectSchema } from "@/lib/schemas";
+import { cn } from "@/lib/utils";
+import { Project } from "@/server/db/schema";
 import { api } from "@/trpc/react";
 import { useMediaQuery } from "@uidotdev/usehooks";
 import { useState, type Dispatch, type SetStateAction } from "react";
@@ -42,20 +41,14 @@ export function AddProjectButton() {
 
   if (isDesktop) {
     return (
-      <Dialog open={open} onOpenChange={setOpen}>
-        <DialogTrigger asChild>
+      <Popover open={open} onOpenChange={setOpen}>
+        <PopoverTrigger asChild>
           <Button variant="secondary">پروژه جدید</Button>
-        </DialogTrigger>
-        <DialogContent dir="rtl" className="sm:max-w-[425px]">
-          <DialogHeader>
-            <DialogTitle>پروژه جدید</DialogTitle>
-            <DialogDescription>
-              نام پروژه جدید را وارد کنید و روی ذخیره کلیک کنید.
-            </DialogDescription>
-          </DialogHeader>
+        </PopoverTrigger>
+        <PopoverContent dir="rtl" className="sm:max-w-[425px]">
           <NewProjectForm setOpen={setOpen} />
-        </DialogContent>
-      </Dialog>
+        </PopoverContent>
+      </Popover>
     );
   }
 
@@ -87,25 +80,49 @@ interface NewProjectFormProps extends React.ComponentProps<"form"> {
 }
 
 function NewProjectForm({ className, setOpen }: NewProjectFormProps) {
-  const form = useForm<z.infer<typeof newProjectSchema>>({});
+  const form = useForm<z.infer<typeof newProjectSchema>>({
+    defaultValues: { name: "" },
+  });
   const utils = api.useUtils();
-  const create = api.project.create.useMutation({
+  const { mutate } = api.project.create.useMutation({
+    onMutate: async (newProject) => {
+      await utils.project.getAll.cancel();
+      const previousProjects = utils.project.getAll.getData();
+      utils.project.getAll.setData(
+        undefined,
+        (oldQueryData: Project[] | undefined) =>
+          [
+            ...(oldQueryData ?? []),
+            {
+              name: newProject.name,
+              id: "1",
+              createdAt: new Date(),
+              updatedAt: new Date(),
+              createdById: "1",
+              userId: "1",
+            },
+          ] as Project[],
+      );
+      return { previousProjects };
+    },
     onSuccess: async () => {
-      await utils.project.getAll.invalidate();
       form.reset();
-      setOpen(false);
+    },
+    onSettled: async () => {
+      await utils.project.getAll.invalidate();
     },
   });
 
   async function onSubmit({ name }: z.infer<typeof newProjectSchema>) {
-    create.mutate({ name });
+    setOpen(false);
+    mutate({ name });
   }
 
   return (
     <Form {...form}>
       <form
         onSubmit={form.handleSubmit(onSubmit)}
-        className="grid items-start gap-4"
+        className={cn("grid items-start gap-4", className)}
       >
         <FormField
           control={form.control}

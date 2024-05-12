@@ -1,6 +1,6 @@
-import "@/styles/globals.css";
-
 import { Vazir } from "@/assets/fonts/fonts";
+import "@/styles/globals.css";
+import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import { Inter } from "next/font/google";
 
 import Providers from "./providers";
@@ -26,7 +26,10 @@ export default function RootLayout({
       <body
         className={`font-sans ${Vazir.variable} ${inter.variable} debug-screens`}
       >
-        <Providers>{children}</Providers>
+        <Providers>
+          {children}
+          <ReactQueryDevtools initialIsOpen={false} />
+        </Providers>
       </body>
     </html>
   );

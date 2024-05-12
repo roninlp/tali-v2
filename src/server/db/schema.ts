@@ -7,7 +7,7 @@ import {
 } from "drizzle-orm/sqlite-core";
 import { createInsertSchema, createSelectSchema } from "drizzle-zod";
 import { type AdapterAccount } from "next-auth/adapters";
-import { z } from "zod";
+import { type z } from "zod";
 
 /**
  * This is an example of how to use the multi-project schema feature of Drizzle ORM. Use the same
