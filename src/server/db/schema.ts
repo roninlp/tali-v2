@@ -108,7 +108,7 @@ export const tasks = sqliteTable("task", {
   updatedAt: text("updated_at")
     .notNull()
     .default(sql`CURRENT_TIMESTAMP`),
-  projectId: integer("project_id"),
+  projectId: integer("project_id").notNull(),
 });
 
 export const tasksRelations = relations(tasks, ({ one }) => ({
@@ -121,6 +121,7 @@ export const tasksRelations = relations(tasks, ({ one }) => ({
 
 export const insertTaskSchema = createInsertSchema(tasks);
 export const selectTaskSchema = createSelectSchema(tasks);
+export type Task = z.infer<typeof selectTaskSchema>;
 
 export const insertProjectSchema = createInsertSchema(projects);
 export const selectProjectSchema = createSelectSchema(projects);

@@ -1,13 +1,10 @@
 "use client";
-import { Badge } from "@/components/ui/badge";
+
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import { type Project } from "@/server/db/schema";
-import { api } from "@/trpc/react";
 import {
   ChevronLeftIcon,
   ChevronRightIcon,
-  Cross2Icon,
   PlusIcon,
 } from "@radix-ui/react-icons";
 import {
@@ -25,45 +22,15 @@ import {
   startOfWeek,
 } from "date-fns-jalali";
 import { useState } from "react";
-import { AddProjectButton } from "./add-project-button";
 import Day from "./day";
 
-type CalenderProps = {
-  projects: Project[];
-};
-
-export default function Calendar({ projects }: CalenderProps) {
+export default function Calendar() {
   // unstable_noStore();
-  const utils = api.useUtils();
   const today = startOfToday();
   const [selectedDay, setSelectedDay] = useState(today);
   const [currentMonth, setCurrentMonth] = useState(format(today, "MMM-yyyy"));
 
   const firstDayOfCurrentMonth = parse(currentMonth, "MMM-yyyy", new Date());
-
-  const projectQuery = api.project.getAll.useQuery(undefined, {
-    initialData: projects,
-  });
-  // const projectQueryKey = getQueryKey(api.project.create);
-
-  // const projectVariables = useMutationState<string>({
-  //   filters: { mutationKey: projectQueryKey, status: "pending" },
-  //   select: (mutation) => mutation.state.data,
-  // });
-
-  const {
-    mutate: deleteProject,
-    isPending,
-    variables,
-  } = api.project.delete.useMutation({
-    onSuccess: async () => {
-      await utils.project.getAll.invalidate();
-    },
-  });
-
-  const handleDeleteProject = (id: number) => {
-    deleteProject({ projectId: id });
-  };
 
   const days = eachDayOfInterval({
     start: startOfWeek(firstDayOfCurrentMonth),
@@ -80,7 +47,7 @@ export default function Calendar({ projects }: CalenderProps) {
   }
 
   return (
-    <div className="mx-auto flex h-full w-full flex-grow flex-col">
+    <div className="flex w-full flex-col">
       <div className="flex items-center gap-2 px-8">
         <h2 className="flex-auto px-8 text-3xl text-foreground">
           <span className="font-bold">
@@ -88,35 +55,7 @@ export default function Calendar({ projects }: CalenderProps) {
           </span>
           <span>{format(firstDayOfCurrentMonth, "yyyy")}</span>
         </h2>
-        <div className="flex flex-wrap gap-2">
-          {projectQuery?.data?.map((project) => (
-            <Badge
-              key={project.id}
-              variant="default"
-              className={cn(
-                isPending && variables.projectId === project.id
-                  ? "bg-white"
-                  : "",
-                "group flex items-center justify-center gap-1 py-1",
-              )}
-            >
-              <div className="size-4">
-                <Button
-                  variant="destructive"
-                  size="icon"
-                  onClick={() => handleDeleteProject(project.id)}
-                  className="size-full scale-0 transition-all ease-in-out group-hover:scale-100"
-                >
-                  <Cross2Icon />
-                </Button>
-              </div>
-              {project.name}
-            </Badge>
-          ))}
-        </div>
-        <div>
-          <AddProjectButton />
-        </div>
+
         <div className="flex">
           <Button onClick={previousMonth} variant="ghost" size="icon">
             <span className="sr-only">ماه قبل</span>

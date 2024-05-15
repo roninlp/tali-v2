@@ -10,7 +10,7 @@ import { taskRouter } from "./routers/task";
  */
 export const appRouter = createTRPCRouter({
   post: postRouter,
-  tasl: taskRouter,
+  task: taskRouter,
   project: projectRouter,
 });
 

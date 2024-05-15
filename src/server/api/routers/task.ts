@@ -2,7 +2,13 @@ import { z } from "zod";
 
 import { createTRPCRouter, protectedProcedure } from "@/server/api/trpc";
 import { insertTaskSchema, tasks } from "@/server/db/schema";
-import { endOfMonth, getUnixTime, startOfMonth } from "date-fns-jalali";
+import {
+  endOfDay,
+  endOfMonth,
+  getUnixTime,
+  startOfDay,
+  startOfMonth,
+} from "date-fns-jalali";
 import { and, between, eq } from "drizzle-orm";
 
 export const taskRouter = createTRPCRouter({
@@ -12,8 +18,29 @@ export const taskRouter = createTRPCRouter({
       await ctx.db.insert(tasks).values({
         name: input.name,
         dueDate: input.dueDate,
+        projectId: input.projectId,
         createdById: ctx.session.user.id,
       });
+    }),
+  //create an api route to get all tasks between two dates
+  getAllTasks: protectedProcedure
+    .input(
+      z.object({
+        startDate: z.number(),
+        endDate: z.number(),
+      }),
+    )
+    .query(async ({ ctx, input }) => {
+      const targerStart = getUnixTime(startOfDay(input.startDate));
+      const targetEnd = getUnixTime(endOfDay(input.endDate));
+
+      const tasksForMonth = await ctx.db.query.tasks.findMany({
+        where: and(
+          between(tasks.dueDate, targerStart, targetEnd),
+          eq(tasks.createdById, ctx.session.user.id),
+        ),
+      });
+      return tasksForMonth;
     }),
 
   getAllTasksOfMonth: protectedProcedure

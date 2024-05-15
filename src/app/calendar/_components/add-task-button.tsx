@@ -26,9 +26,8 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import { newProjectSchema } from "@/lib/schemas";
 import { cn } from "@/lib/utils";
-import { type Project } from "@/server/db/schema";
+import { insertTaskSchema } from "@/server/db/schema";
 import { api } from "@/trpc/react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useState, type Dispatch, type SetStateAction } from "react";
@@ -47,7 +46,7 @@ export function AddProjectButton() {
           <Button variant="secondary">پروژه جدید</Button>
         </PopoverTrigger>
         <PopoverContent dir="rtl" className="sm:max-w-[425px]">
-          <NewProjectForm setOpen={setOpen} />
+          <NewTaskForm setOpen={setOpen} />
         </PopoverContent>
       </Popover>
     );
@@ -65,7 +64,7 @@ export function AddProjectButton() {
             Make changes to your profile here. Click save when you&apos;re done.
           </DrawerDescription>
         </DrawerHeader>
-        <NewProjectForm setOpen={setOpen} className="px-4" />
+        <NewTaskForm setOpen={setOpen} className="px-4" />
         <DrawerFooter className="pt-2">
           <DrawerClose asChild>
             <Button variant="outline">Cancel</Button>
@@ -76,48 +75,32 @@ export function AddProjectButton() {
   );
 }
 
-interface NewProjectFormProps extends React.ComponentProps<"form"> {
+interface NewTaskFormProps extends React.ComponentProps<"form"> {
   setOpen: Dispatch<SetStateAction<boolean>>;
 }
 
-function NewProjectForm({ className, setOpen }: NewProjectFormProps) {
-  const form = useForm<z.infer<typeof newProjectSchema>>({
-    defaultValues: { name: "" },
-    resolver: zodResolver(newProjectSchema),
+function NewTaskForm({ className, setOpen }: NewTaskFormProps) {
+  const form = useForm<z.infer<typeof insertTaskSchema>>({
+    resolver: zodResolver(insertTaskSchema),
   });
   const utils = api.useUtils();
-  const { mutate } = api.project.create.useMutation({
-    onMutate: async (newProject) => {
-      await utils.project.getAll.cancel();
-      const previousProjects = utils.project.getAll.getData();
-      utils.project.getAll.setData(
-        undefined,
-        (oldQueryData: Project[] | undefined) =>
-          [
-            ...(oldQueryData ?? []),
-            {
-              name: newProject.name,
-              id: "1",
-              createdAt: new Date(),
-              updatedAt: new Date(),
-              createdById: "1",
-              userId: "1",
-            },
-          ] as Project[],
-      );
-      return { previousProjects };
-    },
+  const { mutate } = api.task.create.useMutation({
     onSuccess: async () => {
       form.reset();
     },
     onSettled: async () => {
-      await utils.project.getAll.invalidate();
+      await utils.task.getAllTasks.invalidate();
     },
   });
 
-  async function onSubmit({ name }: z.infer<typeof newProjectSchema>) {
+  async function onSubmit({
+    name,
+    projectId,
+    dueDate,
+    createdById,
+  }: z.infer<typeof insertTaskSchema>) {
     setOpen(false);
-    mutate({ name });
+    mutate({ name, projectId, dueDate, createdById });
   }
 
   return (

@@ -1,11 +1,14 @@
 import { getServerAuthSession } from "@/server/auth";
+import { api } from "@/trpc/server";
 import { type ReactNode } from "react";
 import SignIn from "../_components/sign-in";
 import SignOut from "../_components/sign-out";
 import { ModeToggle } from "../_components/theme-toggle";
+import ProjectsList from "./_components/projects-list";
 
 const CalendarLayout = async ({ children }: { children: ReactNode }) => {
   const session = await getServerAuthSession();
+  const projects = await api.project.getAll();
   return (
     <div
       dir="rtl"
@@ -20,7 +23,12 @@ const CalendarLayout = async ({ children }: { children: ReactNode }) => {
         </div>
         <ModeToggle />
       </div>
-      {children}
+      <div className="flex h-full w-full flex-grow">
+        <div>
+          <ProjectsList projects={projects} />
+        </div>
+        {children}
+      </div>
     </div>
   );
 };
