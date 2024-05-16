@@ -1,3 +1,10 @@
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { getServerAuthSession } from "@/server/auth";
 import { api } from "@/trpc/server";
 import { type ReactNode } from "react";
@@ -24,8 +31,18 @@ const CalendarLayout = async ({ children }: { children: ReactNode }) => {
         <ModeToggle />
       </div>
       <div className="flex h-full w-full flex-grow">
-        <div>
-          <ProjectsList projects={projects} />
+        <div className="flex w-1/5  flex-col gap-4 px-4 py-8">
+          <Card>
+            <CardHeader>
+              <CardTitle>پروژه‌ها</CardTitle>
+              <CardDescription>
+                شما {projects.length} پروژه در دسترس دارید
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <ProjectsList projects={projects} />
+            </CardContent>
+          </Card>
         </div>
         {children}
       </div>

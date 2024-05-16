@@ -36,16 +36,20 @@ import { useForm } from "react-hook-form";
 import { useMediaQuery } from "usehooks-ts";
 import { type z } from "zod";
 
-export function AddProjectButton() {
+export function AddProjectButton({
+  children,
+  projectId,
+}: {
+  children: React.ReactNode;
+  projectId?: number;
+}) {
   const [open, setOpen] = useState(false);
   const isDesktop = useMediaQuery("(min-width: 768px)");
 
   if (isDesktop) {
     return (
       <Popover open={open} onOpenChange={setOpen}>
-        <PopoverTrigger asChild>
-          <Button variant="secondary">پروژه جدید</Button>
-        </PopoverTrigger>
+        <PopoverTrigger asChild>{children}</PopoverTrigger>
         <PopoverContent dir="rtl" className="sm:max-w-[425px]">
           <NewProjectForm setOpen={setOpen} />
         </PopoverContent>
@@ -55,9 +59,7 @@ export function AddProjectButton() {
 
   return (
     <Drawer open={open} onOpenChange={setOpen}>
-      <DrawerTrigger asChild>
-        <Button variant="secondary">پروژه جدید</Button>
-      </DrawerTrigger>
+      <DrawerTrigger asChild>{children}</DrawerTrigger>
       <DrawerContent>
         <DrawerHeader className="text-left">
           <DrawerTitle>پروژه جدید</DrawerTitle>
@@ -78,11 +80,18 @@ export function AddProjectButton() {
 
 interface NewProjectFormProps extends React.ComponentProps<"form"> {
   setOpen: Dispatch<SetStateAction<boolean>>;
+  project?: Project;
+  setDropDownOpen?: Dispatch<SetStateAction<boolean>>;
 }
 
-function NewProjectForm({ className, setOpen }: NewProjectFormProps) {
+export function NewProjectForm({
+  className,
+  setOpen,
+  project,
+  setDropDownOpen,
+}: NewProjectFormProps) {
   const form = useForm<z.infer<typeof newProjectSchema>>({
-    defaultValues: { name: "" },
+    defaultValues: { name: project?.name ?? "" },
     resolver: zodResolver(newProjectSchema),
   });
   const utils = api.useUtils();
@@ -90,20 +99,24 @@ function NewProjectForm({ className, setOpen }: NewProjectFormProps) {
     onMutate: async (newProject) => {
       await utils.project.getAll.cancel();
       const previousProjects = utils.project.getAll.getData();
+      const addedProject: Project = !!project
+        ? { ...project, name: newProject.name }
+        : {
+            name: newProject.name,
+            id: 1,
+            createdAt: "",
+            updatedAt: "",
+            createdById: "1",
+            userId: "1",
+          };
       utils.project.getAll.setData(
         undefined,
-        (oldQueryData: Project[] | undefined) =>
-          [
-            ...(oldQueryData ?? []),
-            {
-              name: newProject.name,
-              id: "1",
-              createdAt: new Date(),
-              updatedAt: new Date(),
-              createdById: "1",
-              userId: "1",
-            },
-          ] as Project[],
+        (oldQueryData: Project[] | undefined) => {
+          const filteredProjects =
+            oldQueryData?.filter((project) => project.id !== addedProject.id) ??
+            [];
+          return [...filteredProjects, addedProject] as Project[];
+        },
       );
       return { previousProjects };
     },
@@ -116,9 +129,14 @@ function NewProjectForm({ className, setOpen }: NewProjectFormProps) {
   });
 
   async function onSubmit({ name }: z.infer<typeof newProjectSchema>) {
-    setOpen(false);
-    mutate({ name });
+    handleClose();
+    mutate({ name, id: project?.id });
   }
+
+  const handleClose = () => {
+    setOpen(false);
+    setDropDownOpen && setDropDownOpen(false);
+  };
 
   return (
     <Form {...form}>
@@ -142,7 +160,12 @@ function NewProjectForm({ className, setOpen }: NewProjectFormProps) {
             </FormItem>
           )}
         />
-        <Button type="submit">ذخیره</Button>
+        <div className="flex items-center justify-end gap-2">
+          <Button type="submit">ذخیره</Button>
+          <Button type="button" variant="outline" onClick={handleClose}>
+            لغو
+          </Button>
+        </div>
       </form>
     </Form>
   );

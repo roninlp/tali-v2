@@ -1,14 +1,8 @@
 import { Vazir } from "@/assets/fonts/fonts";
 import "@/styles/globals.css";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
-import { Inter } from "next/font/google";
 
 import Providers from "./providers";
-
-const inter = Inter({
-  subsets: ["latin"],
-  variable: "--font-sans",
-});
 
 export const metadata = {
   title: "T3Li",
@@ -23,9 +17,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body
-        className={`font-sans ${Vazir.variable} ${inter.variable} debug-screens`}
-      >
+      <body className={`${Vazir.variable} debug-screens font-vazir`}>
         <Providers>
           {children}
           <ReactQueryDevtools initialIsOpen={false} />
