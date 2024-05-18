@@ -18,6 +18,7 @@ export const projectRouter = createTRPCRouter({
           name: input.name,
           createdById: ctx.session.user.id,
           id: input.id,
+          updatedAt: String(input.updatedAt),
         })
         .onConflictDoUpdate({ target: projects.id, set: { name: input.name } });
     }),
@@ -47,6 +48,7 @@ export const projectRouter = createTRPCRouter({
   getAll: protectedProcedure.query(({ ctx }) => {
     return ctx.db.query.projects.findMany({
       where: eq(projects.createdById, ctx.session.user.id),
+      orderBy: (projects, { desc }) => [desc(projects.createdAt)],
     });
   }),
 

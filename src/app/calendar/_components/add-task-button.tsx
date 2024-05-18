@@ -1,5 +1,6 @@
 "use client";
 
+import { Combobox } from "@/components/combo-box";
 import { Button } from "@/components/ui/button";
 import {
   Drawer,
@@ -14,7 +15,6 @@ import {
 import {
   Form,
   FormControl,
-  FormDescription,
   FormField,
   FormItem,
   FormLabel,
@@ -26,16 +26,18 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
+import { newTaskSchema } from "@/lib/schemas";
 import { cn } from "@/lib/utils";
-import { insertTaskSchema } from "@/server/db/schema";
 import { api } from "@/trpc/react";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { CaretSortIcon, PlusIcon } from "@radix-ui/react-icons";
+import { format } from "date-fns-jalali";
 import { useState, type Dispatch, type SetStateAction } from "react";
 import { useForm } from "react-hook-form";
 import { useMediaQuery } from "usehooks-ts";
 import { type z } from "zod";
 
-export function AddProjectButton() {
+export function AddTaskButton({ day }: { day: Date }) {
   const [open, setOpen] = useState(false);
   const isDesktop = useMediaQuery("(min-width: 768px)");
 
@@ -43,10 +45,18 @@ export function AddProjectButton() {
     return (
       <Popover open={open} onOpenChange={setOpen}>
         <PopoverTrigger asChild>
-          <Button variant="secondary">پروژه جدید</Button>
+          <Button
+            variant="default"
+            size="icon"
+            className={cn(
+              "group/btn absolute bottom-1 left-1 scale-0 cursor-pointer items-center justify-center transition-all duration-300 ease-in-out group-hover:flex group-hover:scale-100",
+            )}
+          >
+            <PlusIcon className="size-5 scale-100 transition-all group-hover/btn:scale-125" />
+          </Button>
         </PopoverTrigger>
         <PopoverContent dir="rtl" className="sm:max-w-[425px]">
-          <NewTaskForm setOpen={setOpen} />
+          <NewTaskForm day={day} setOpen={setOpen} />
         </PopoverContent>
       </Popover>
     );
@@ -55,7 +65,15 @@ export function AddProjectButton() {
   return (
     <Drawer open={open} onOpenChange={setOpen}>
       <DrawerTrigger asChild>
-        <Button variant="secondary">پروژه جدید</Button>
+        <Button
+          variant="default"
+          size="icon"
+          className={cn(
+            "group/btn absolute bottom-1 left-1 scale-0 cursor-pointer items-center justify-center transition-all duration-300 ease-in-out group-hover:flex group-hover:scale-100",
+          )}
+        >
+          <PlusIcon className="size-5 scale-100 transition-all group-hover/btn:scale-125" />
+        </Button>
       </DrawerTrigger>
       <DrawerContent>
         <DrawerHeader className="text-left">
@@ -64,7 +82,7 @@ export function AddProjectButton() {
             Make changes to your profile here. Click save when you&apos;re done.
           </DrawerDescription>
         </DrawerHeader>
-        <NewTaskForm setOpen={setOpen} className="px-4" />
+        <NewTaskForm setOpen={setOpen} day={day} className="px-4" />
         <DrawerFooter className="pt-2">
           <DrawerClose asChild>
             <Button variant="outline">Cancel</Button>
@@ -77,14 +95,23 @@ export function AddProjectButton() {
 
 interface NewTaskFormProps extends React.ComponentProps<"form"> {
   setOpen: Dispatch<SetStateAction<boolean>>;
+  day: Date;
 }
 
-function NewTaskForm({ className, setOpen }: NewTaskFormProps) {
-  const form = useForm<z.infer<typeof insertTaskSchema>>({
-    resolver: zodResolver(insertTaskSchema),
+function NewTaskForm({ className, setOpen, day }: NewTaskFormProps) {
+  const form = useForm<z.infer<typeof newTaskSchema>>({
+    defaultValues: {
+      name: "",
+      dueDate: format(day, "yyyy-MM-dd HH:mm:ss"),
+      projectId: 1,
+    },
+    resolver: zodResolver(newTaskSchema),
   });
   const utils = api.useUtils();
   const { mutate } = api.task.create.useMutation({
+    onMutate: () => {
+      console.log("mutate");
+    },
     onSuccess: async () => {
       form.reset();
     },
@@ -93,15 +120,22 @@ function NewTaskForm({ className, setOpen }: NewTaskFormProps) {
     },
   });
 
-  async function onSubmit({
-    name,
-    projectId,
-    dueDate,
-    createdById,
-  }: z.infer<typeof insertTaskSchema>) {
+  const projects = utils.project.getAll.getData();
+
+  async function onSubmit({ name, projectId }: z.infer<typeof newTaskSchema>) {
     setOpen(false);
-    mutate({ name, projectId, dueDate, createdById });
+    mutate({
+      name,
+      projectId: Number(projectId),
+      dueDate: format(day, "yyyy-MM-dd HH:mm:ss"),
+      createdById: "",
+    });
   }
+
+  const projectsOptions = projects?.map((project) => ({
+    label: project.name,
+    value: project.id,
+  }));
 
   return (
     <Form {...form}>
@@ -114,17 +148,55 @@ function NewTaskForm({ className, setOpen }: NewTaskFormProps) {
           name="name"
           render={({ field }) => (
             <FormItem className="grid gap-2">
-              <FormLabel>نام پروژه</FormLabel>
+              <FormLabel>نام تسک</FormLabel>
               <FormControl>
                 <Input placeholder="نام پروژه ..." {...field} />
               </FormControl>
-              <FormDescription>
-                نام پروژه جدیدی که میخواهید اضافه کنید.
-              </FormDescription>
+              {/* <FormDescription>
+                نام تسک جدیدی که میخواهید اضافه کنید.
+              </FormDescription> */}
               <FormMessage />
             </FormItem>
           )}
         />
+        <FormField
+          control={form.control}
+          name="projectId"
+          render={({ field }) => (
+            <FormItem className="grid gap-2">
+              <FormLabel>پروژه</FormLabel>
+              <Combobox
+                options={projectsOptions as { value: number; label: string }[]}
+                value={field.value}
+                setValue={(name, value) => form.setValue("projectId", value)}
+              >
+                <FormControl>
+                  <Button
+                    variant="outline"
+                    role="combobox"
+                    className={cn(
+                      "w-full justify-between",
+                      !field.value && "text-muted-foreground",
+                    )}
+                  >
+                    {field.value
+                      ? projectsOptions?.find(
+                          (project) => project.value === field.value,
+                        )?.label
+                      : "Select language"}
+                    <CaretSortIcon className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                  </Button>
+                </FormControl>
+              </Combobox>
+              {/* <FormDescription>
+                انتخاب پروژه که تمام پروژه های در حال حاضر در قسمت انجام شده
+                است.
+              </FormDescription> */}
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
         <Button type="submit">ذخیره</Button>
       </form>
     </Form>

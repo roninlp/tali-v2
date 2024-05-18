@@ -1,5 +1,4 @@
 "use client";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
 import {
@@ -36,11 +35,11 @@ export default function ProjectsList({ projects }: ProjectListProps) {
           <Button variant="secondary">پروژه جدید</Button>
         </AddProjectButton>
       </div>
-      <div className="flex flex-wrap gap-2">
+      <ul className="flex flex-col gap-4">
         {projectQuery?.data?.map((project) => (
           <ProjectComponent key={project.id} project={project} />
         ))}
-      </div>
+      </ul>
     </div>
   );
 }
@@ -54,6 +53,9 @@ function ProjectComponent({ project }: { project: Project }) {
     isPending: isDeletePending,
     variables: deleteVariables,
   } = api.project.delete.useMutation({
+    onMutate: () => {
+      setDropDownOpen(false);
+    },
     onSuccess: async () => {
       await utils.project.getAll.invalidate();
     },
@@ -64,14 +66,13 @@ function ProjectComponent({ project }: { project: Project }) {
   };
 
   return (
-    <Badge
+    <li
       key={project.id}
-      variant="default"
       className={cn(
         isDeletePending && deleteVariables.projectId === project.id
-          ? "bg-white"
+          ? "bg-muted text-muted-foreground"
           : "",
-        "group flex items-center justify-center gap-1 py-1",
+        "group flex items-center justify-start gap-2 rounded-md px-2 py-2 hover:bg-secondary",
       )}
     >
       <DropdownMenu
@@ -80,7 +81,12 @@ function ProjectComponent({ project }: { project: Project }) {
         onOpenChange={setDropDownOpen}
       >
         <DropdownMenuTrigger asChild>
-          <Button variant="ghost" size="icon" className="size-5">
+          <Button
+            disabled={isDeletePending}
+            variant="ghost"
+            size="icon"
+            className="size-5"
+          >
             <DotsVerticalIcon />
           </Button>
         </DropdownMenuTrigger>
@@ -125,8 +131,8 @@ function ProjectComponent({ project }: { project: Project }) {
           </EditProjectDialog>
         </DropdownMenuContent>
       </DropdownMenu>
-      {project.name}
-    </Badge>
+      <span>{project.name}</span>
+    </li>
   );
 }
 
@@ -149,12 +155,8 @@ function EditProjectDialog({
           {children}
         </DropdownMenuItem>
       </DialogTrigger>
-      <DialogContent dir="rtl">
-        <NewProjectForm
-          project={project}
-          setOpen={setOpen}
-          setDropDownOpen={setDropDownOpen}
-        />
+      <DialogContent onCloseAutoFocus={() => setDropDownOpen(false)} dir="rtl">
+        <NewProjectForm project={project} setOpen={setOpen} />
       </DialogContent>
     </Dialog>
   );

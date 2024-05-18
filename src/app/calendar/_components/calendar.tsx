@@ -2,11 +2,9 @@
 
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import {
-  ChevronLeftIcon,
-  ChevronRightIcon,
-  PlusIcon,
-} from "@radix-ui/react-icons";
+import { Task } from "@/server/db/schema";
+import { api } from "@/trpc/react";
+import { ChevronLeftIcon, ChevronRightIcon } from "@radix-ui/react-icons";
 import {
   add,
   eachDayOfInterval,
@@ -22,9 +20,10 @@ import {
   startOfWeek,
 } from "date-fns-jalali";
 import { useState } from "react";
+import { AddTaskButton } from "./add-task-button";
 import Day from "./day";
 
-export default function Calendar() {
+export default function Calendar({ tasks }: { tasks: Task[][] }) {
   // unstable_noStore();
   const today = startOfToday();
   const [selectedDay, setSelectedDay] = useState(today);
@@ -45,6 +44,16 @@ export default function Calendar() {
     const firstDayNextMonth = add(firstDayOfCurrentMonth, { months: 1 });
     setCurrentMonth(format(firstDayNextMonth, "MMM-yyyy"));
   }
+
+  const tasksQuery = api.task.getAllTasks.useQuery(
+    {
+      startDate: startOfWeek(firstDayOfCurrentMonth),
+      endDate: endOfMonth(firstDayOfCurrentMonth),
+    },
+    {
+      initialData: tasks,
+    },
+  );
 
   return (
     <div className="flex w-full flex-col">
@@ -89,15 +98,7 @@ export default function Calendar() {
               "group relative flex flex-col items-start gap-1 overflow-clip border-b p-1",
             )}
           >
-            <Button
-              variant="default"
-              size="icon"
-              className={cn(
-                "group/btn absolute bottom-1 left-1 scale-0 cursor-pointer items-center justify-center transition-all duration-300 ease-in-out group-hover:flex group-hover:scale-100",
-              )}
-            >
-              <PlusIcon className="size-5 scale-100 transition-all group-hover/btn:scale-125" />
-            </Button>
+            <AddTaskButton day={day} />
             <Day
               day={day}
               selectedDay={selectedDay}

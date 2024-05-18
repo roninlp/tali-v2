@@ -101,7 +101,7 @@ export const tasks = sqliteTable("task", {
   description: text("description"),
   isCompleted: integer("isCompleted", { mode: "boolean" }).default(false),
   createdById: text("createdById").notNull(),
-  dueDate: integer("dueDate").notNull(),
+  dueDate: text("dueDate").notNull(),
   createdAt: text("created_at")
     .notNull()
     .default(sql`CURRENT_TIMESTAMP`),

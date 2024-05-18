@@ -23,6 +23,7 @@ import {
 import { Input } from "@/components/ui/input";
 import {
   Popover,
+  PopoverArrow,
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
@@ -31,6 +32,7 @@ import { cn } from "@/lib/utils";
 import { type Project } from "@/server/db/schema";
 import { api } from "@/trpc/react";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { format } from "date-fns-jalali";
 import { useState, type Dispatch, type SetStateAction } from "react";
 import { useForm } from "react-hook-form";
 import { useMediaQuery } from "usehooks-ts";
@@ -52,6 +54,7 @@ export function AddProjectButton({
         <PopoverTrigger asChild>{children}</PopoverTrigger>
         <PopoverContent dir="rtl" className="sm:max-w-[425px]">
           <NewProjectForm setOpen={setOpen} />
+          <PopoverArrow />
         </PopoverContent>
       </Popover>
     );
@@ -88,7 +91,6 @@ export function NewProjectForm({
   className,
   setOpen,
   project,
-  setDropDownOpen,
 }: NewProjectFormProps) {
   const form = useForm<z.infer<typeof newProjectSchema>>({
     defaultValues: { name: project?.name ?? "" },
@@ -112,10 +114,17 @@ export function NewProjectForm({
       utils.project.getAll.setData(
         undefined,
         (oldQueryData: Project[] | undefined) => {
-          const filteredProjects =
-            oldQueryData?.filter((project) => project.id !== addedProject.id) ??
-            [];
-          return [...filteredProjects, addedProject] as Project[];
+          if (!!project) {
+            return (
+              oldQueryData?.map((project) =>
+                project.id === addedProject.id ? addedProject : project,
+              ) ?? []
+            );
+          } else {
+            return !!oldQueryData
+              ? ([addedProject, ...oldQueryData] as Project[])
+              : [];
+          }
         },
       );
       return { previousProjects };
@@ -130,12 +139,15 @@ export function NewProjectForm({
 
   async function onSubmit({ name }: z.infer<typeof newProjectSchema>) {
     handleClose();
-    mutate({ name, id: project?.id });
+    mutate({
+      name,
+      id: project?.id,
+      updatedAt: format(new Date(), "yyyy-MM-dd HH:mm:ss"),
+    });
   }
 
   const handleClose = () => {
     setOpen(false);
-    setDropDownOpen && setDropDownOpen(false);
   };
 
   return (
