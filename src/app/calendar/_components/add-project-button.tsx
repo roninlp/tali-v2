@@ -102,7 +102,7 @@ export function NewProjectForm({
       await utils.project.getAll.cancel();
       const previousProjects = utils.project.getAll.getData();
       const addedProject: ProjectType = !!project
-        ? { ...project, name: newProject.name }
+        ? project
         : {
             name: newProject.name,
             id: 1,
@@ -116,13 +116,23 @@ export function NewProjectForm({
         (oldQueryData: ProjectType[] | undefined) => {
           if (!!project) {
             return (
-              oldQueryData?.map((project) =>
-                project.id === addedProject.id ? addedProject : project,
+              oldQueryData?.map((oldProject) =>
+                oldProject.id === project.id ? project : oldProject,
               ) ?? []
             );
           } else {
             return !!oldQueryData
-              ? ([addedProject, ...oldQueryData] as ProjectType[])
+              ? ([
+                  {
+                    name: newProject.name,
+                    id: 1,
+                    createdAt: "",
+                    updatedAt: "",
+                    createdById: "1",
+                    userId: "1",
+                  },
+                  ...oldQueryData,
+                ] as ProjectType[])
               : [];
           }
         },

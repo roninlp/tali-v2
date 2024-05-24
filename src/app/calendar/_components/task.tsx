@@ -1,9 +1,11 @@
 "use client";
+import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
 import { type TaskType } from "@/server/db/schema";
 import { api } from "@/trpc/react";
+import { Cross2Icon } from "@radix-ui/react-icons";
 import { endOfMonth, startOfMonth, startOfToday } from "date-fns-jalali";
 
 type TaskProps = {
@@ -43,7 +45,14 @@ const Task = ({
           return updatedTasks ?? [];
         },
       );
+      return { previousTasks };
     },
+    onSettled: async () => {
+      await utils.task.invalidate();
+    },
+  });
+
+  const deleteTask = api.task.delete.useMutation({
     onSettled: async () => {
       await utils.task.invalidate();
     },
@@ -52,18 +61,27 @@ const Task = ({
   const onCheckboxChange = (e: boolean) => {
     mutate.mutate({ id, isCompleted: e });
   };
+
+  const handleDeleteTask = () => {
+    deleteTask.mutate({ id });
+  };
   return (
     <li
       className={cn(
-        "flex items-center gap-2 rounded bg-secondary px-4 py-1 text-secondary-foreground",
+        "flex items-center justify-between rounded bg-secondary px-4 py-2 text-secondary-foreground",
       )}
     >
-      <Checkbox
-        id={`task-${id}`}
-        onCheckedChange={onCheckboxChange}
-        checked={isCompleted}
-      />
-      <Label htmlFor={`task-${id}`}>{name}</Label>
+      <div className="flex items-center gap-2">
+        <Checkbox
+          id={`task-${id}`}
+          onCheckedChange={onCheckboxChange}
+          checked={isCompleted}
+        />
+        <Label htmlFor={`task-${id}`}>{name}</Label>
+      </div>
+      <Button size="icon" className="size-6" onClick={handleDeleteTask}>
+        <Cross2Icon />
+      </Button>
     </li>
   );
 };

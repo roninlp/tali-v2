@@ -86,6 +86,12 @@ export const taskRouter = createTRPCRouter({
         .where(eq(tasks.id, input.id));
     }),
 
+  delete: protectedProcedure
+    .input(z.object({ id: z.number() }))
+    .mutation(async ({ ctx, input }) => {
+      await ctx.db.delete(tasks).where(eq(tasks.id, input.id));
+    }),
+
   // getAllTasksOfMonth: protectedProcedure
   //   .input(
   //     z.object({

@@ -28,10 +28,16 @@ import {
 } from "@/components/ui/popover";
 import { newTaskSchema } from "@/lib/schemas";
 import { cn } from "@/lib/utils";
+import { TaskType } from "@/server/db/schema";
 import { api } from "@/trpc/react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { CaretSortIcon, PlusIcon } from "@radix-ui/react-icons";
-import { format } from "date-fns-jalali";
+import {
+  endOfMonth,
+  format,
+  startOfMonth,
+  startOfToday,
+} from "date-fns-jalali";
 import { useState, type Dispatch, type SetStateAction } from "react";
 import { useForm } from "react-hook-form";
 import { useMediaQuery } from "usehooks-ts";
@@ -108,10 +114,41 @@ function NewTaskForm({ className, setOpen, day }: NewTaskFormProps) {
     },
     resolver: zodResolver(newTaskSchema),
   });
+  const dayIndex = +format(day, "d");
   const utils = api.useUtils();
+  const firstDayOfCurrentMonth = startOfToday();
   const { mutate } = api.task.create.useMutation({
-    onMutate: () => {
-      console.log("mutate");
+    onMutate: async (newTask) => {
+      await utils.task.getAllTasks.cancel();
+      const previousTasks = utils.task.getAllTasks.getData();
+
+      utils.task.getAllTasks.setData(
+        {
+          startDate: startOfMonth(firstDayOfCurrentMonth),
+          endDate: endOfMonth(firstDayOfCurrentMonth),
+        },
+        (oldQueryData: TaskType[][] | undefined) => {
+          return oldQueryData?.map((days, index) =>
+            index === dayIndex - 1
+              ? [
+                  ...days,
+                  {
+                    name: newTask.name,
+                    projectId: newTask.projectId,
+                    id: 1,
+                    createdById: "",
+                    description: "",
+                    createdAt: "",
+                    updatedAt: "",
+                    dueDate: day,
+                    isCompleted: false,
+                  },
+                ]
+              : days,
+          );
+        },
+      );
+      return { previousTasks };
     },
     onSuccess: async () => {
       form.reset();

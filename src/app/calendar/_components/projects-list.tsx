@@ -27,6 +27,7 @@ export default function ProjectsList({ projects }: ProjectListProps) {
   const projectQuery = api.project.getAll.useQuery(undefined, {
     initialData: projects,
   });
+  console.log("🚀 ~ ProjectsList ~ projectQuery:", projectQuery.data);
 
   return (
     <div className="flex min-w-32 flex-col gap-8">
@@ -58,6 +59,7 @@ function ProjectComponent({ project }: { project: ProjectType }) {
     },
     onSuccess: async () => {
       await utils.project.getAll.invalidate();
+      await utils.task.invalidate();
     },
   });
 

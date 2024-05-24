@@ -4,7 +4,7 @@ import {
   protectedProcedure,
   publicProcedure,
 } from "@/server/api/trpc";
-import { projects } from "@/server/db/schema";
+import { projects, tasks } from "@/server/db/schema";
 import { eq } from "drizzle-orm";
 import { z } from "zod";
 
@@ -27,6 +27,7 @@ export const projectRouter = createTRPCRouter({
     .input(z.object({ projectId: z.number().int() }))
     .mutation(async ({ ctx, input }) => {
       await ctx.db.delete(projects).where(eq(projects.id, input.projectId));
+      await ctx.db.delete(tasks).where(eq(tasks.projectId, input.projectId));
     }),
 
   update: protectedProcedure
