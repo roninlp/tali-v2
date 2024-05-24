@@ -127,7 +127,7 @@ function NewTaskForm({ className, setOpen, day }: NewTaskFormProps) {
     mutate({
       name,
       projectId: Number(projectId),
-      dueDate: format(day, "yyyy-MM-dd HH:mm:ss"),
+      dueDate: day,
       createdById: "",
     });
   }

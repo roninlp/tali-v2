@@ -17,7 +17,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body className={`${Vazir.variable} debug-screens font-vazir`}>
+      <body className={`${Vazir.variable} hover:bg-red-200 debug-screens font-vazir`}>
         <Providers>
           {children}
           <ReactQueryDevtools initialIsOpen={false} />

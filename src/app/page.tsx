@@ -10,7 +10,7 @@ export default async function Home() {
   const session = await getServerAuthSession();
 
   return (
-    <main className="flex min-h-screen flex-col items-center bg-background text-foreground">
+    <main className="min-h-screen flex-col flex items-center bg-background text-foreground">
       <div className="flex w-full justify-between px-16 py-8">
         <div className="flex items-center justify-center gap-4">
           {session ? <SignOut /> : <SignIn />}

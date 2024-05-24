@@ -2,22 +2,21 @@
 
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import { Task } from "@/server/db/schema";
+import { type Task } from "@/server/db/schema";
 import { api } from "@/trpc/react";
 import { ChevronLeftIcon, ChevronRightIcon } from "@radix-ui/react-icons";
 import {
   add,
   eachDayOfInterval,
   endOfMonth,
-  endOfWeek,
   format,
   getDay,
   isEqual,
   isSameMonth,
   isToday,
   parse,
+  startOfMonth,
   startOfToday,
-  startOfWeek,
 } from "date-fns-jalali";
 import { useState } from "react";
 import { AddTaskButton } from "./add-task-button";
@@ -32,8 +31,8 @@ export default function Calendar({ tasks }: { tasks: Task[][] }) {
   const firstDayOfCurrentMonth = parse(currentMonth, "MMM-yyyy", new Date());
 
   const days = eachDayOfInterval({
-    start: startOfWeek(firstDayOfCurrentMonth),
-    end: endOfWeek(endOfMonth(firstDayOfCurrentMonth)),
+    start: firstDayOfCurrentMonth,
+    end: endOfMonth(firstDayOfCurrentMonth),
   });
 
   function previousMonth() {
@@ -45,9 +44,9 @@ export default function Calendar({ tasks }: { tasks: Task[][] }) {
     setCurrentMonth(format(firstDayNextMonth, "MMM-yyyy"));
   }
 
-  const tasksQuery = api.task.getAllTasks.useQuery(
+  const { data: allTasks } = api.task.getAllTasks.useQuery(
     {
-      startDate: startOfWeek(firstDayOfCurrentMonth),
+      startDate: startOfMonth(firstDayOfCurrentMonth),
       endDate: endOfMonth(firstDayOfCurrentMonth),
     },
     {
@@ -100,6 +99,7 @@ export default function Calendar({ tasks }: { tasks: Task[][] }) {
           >
             <AddTaskButton day={day} />
             <Day
+              tasks={allTasks[dayIndex]}
               day={day}
               selectedDay={selectedDay}
               firstDayOfCurrentMonth={firstDayOfCurrentMonth}

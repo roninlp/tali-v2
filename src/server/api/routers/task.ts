@@ -6,9 +6,10 @@ import {
   addDays,
   differenceInDays,
   endOfDay,
+  isSameDay,
   startOfDay,
 } from "date-fns-jalali";
-import { and, eq } from "drizzle-orm";
+import { and, between, eq } from "drizzle-orm";
 
 export const taskRouter = createTRPCRouter({
   create: protectedProcedure
@@ -40,28 +41,21 @@ export const taskRouter = createTRPCRouter({
 
       //create an array of dates between startDate and endDate that have the date as values
       const datesBetweenStartAndEnd = Array.from(
-        { length: daysBetweenStartAndEnd + 1 },
+        { length: daysBetweenStartAndEnd },
         (_, i) => addDays(input.startDate, i),
       );
-
       const allTasks = await ctx.db.query.tasks.findMany({
         where: and(
-          // between(
-          //   parse(tasks.dueDate, "yyyy-MM-dd HH:mm:ss", new Date()),
-          //   targerStart,
-          //   targetEnd,
-          // ),
+          between(tasks.dueDate, targerStart, targetEnd),
           eq(tasks.createdById, ctx.session.user.id),
         ),
       });
-
       const returnTasks = datesBetweenStartAndEnd.map((date) => {
-        const task = allTasks.filter(
-          (task) => startOfDay(task.dueDate) === startOfDay(date),
+        const dayTasks = allTasks.filter((task) =>
+          isSameDay(task.dueDate, date),
         );
-        return task;
+        return dayTasks;
       });
-
       return returnTasks;
     }),
 
