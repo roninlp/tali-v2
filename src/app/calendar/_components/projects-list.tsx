@@ -9,7 +9,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { cn } from "@/lib/utils";
-import { type Project } from "@/server/db/schema";
+import { type ProjectType } from "@/server/db/schema";
 import { api } from "@/trpc/react";
 import { DotsVerticalIcon } from "@radix-ui/react-icons";
 import {
@@ -21,7 +21,7 @@ import {
 import { AddProjectButton, NewProjectForm } from "./add-project-button";
 
 type ProjectListProps = {
-  projects: Project[];
+  projects: ProjectType[];
 };
 export default function ProjectsList({ projects }: ProjectListProps) {
   const projectQuery = api.project.getAll.useQuery(undefined, {
@@ -44,7 +44,7 @@ export default function ProjectsList({ projects }: ProjectListProps) {
   );
 }
 
-function ProjectComponent({ project }: { project: Project }) {
+function ProjectComponent({ project }: { project: ProjectType }) {
   const [dropDownOpen, setDropDownOpen] = useState(false);
   const [showConfirmDelete, setShowConfirmDelete] = useState(false);
   const utils = api.useUtils();
@@ -137,7 +137,7 @@ function ProjectComponent({ project }: { project: Project }) {
 }
 
 type EditProjectDialogProps = {
-  project: Project;
+  project: ProjectType;
   children: ReactNode;
   setDropDownOpen: Dispatch<SetStateAction<boolean>>;
 };

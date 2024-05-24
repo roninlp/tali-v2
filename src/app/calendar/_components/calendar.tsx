@@ -2,7 +2,7 @@
 
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import { type Task } from "@/server/db/schema";
+import { type TaskType } from "@/server/db/schema";
 import { api } from "@/trpc/react";
 import { ChevronLeftIcon, ChevronRightIcon } from "@radix-ui/react-icons";
 import {
@@ -22,7 +22,7 @@ import { useState } from "react";
 import { AddTaskButton } from "./add-task-button";
 import Day from "./day";
 
-export default function Calendar({ tasks }: { tasks: Task[][] }) {
+export default function Calendar({ tasks }: { tasks: TaskType[][] }) {
   // unstable_noStore();
   const today = startOfToday();
   const [selectedDay, setSelectedDay] = useState(today);

@@ -50,6 +50,7 @@ export function AddTaskButton({ day }: { day: Date }) {
             size="icon"
             className={cn(
               "group/btn absolute bottom-1 left-1 scale-0 cursor-pointer items-center justify-center transition-all duration-300 ease-in-out group-hover:flex group-hover:scale-100",
+              open ? "flex scale-100" : "",
             )}
           >
             <PlusIcon className="size-5 scale-100 transition-all group-hover/btn:scale-125" />

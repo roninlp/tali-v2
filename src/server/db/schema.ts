@@ -99,7 +99,9 @@ export const tasks = sqliteTable("task", {
   id: integer("id").notNull().primaryKey(),
   name: text("name").notNull(),
   description: text("description"),
-  isCompleted: integer("isCompleted", { mode: "boolean" }).default(false),
+  isCompleted: integer("isCompleted", { mode: "boolean" })
+    .default(false)
+    .notNull(),
   createdById: text("createdById").notNull(),
   dueDate: integer("dueDate", { mode: "timestamp_ms" })
     .notNull()
@@ -123,8 +125,8 @@ export const tasksRelations = relations(tasks, ({ one }) => ({
 
 export const insertTaskSchema = createInsertSchema(tasks);
 export const selectTaskSchema = createSelectSchema(tasks);
-export type Task = z.infer<typeof selectTaskSchema>;
+export type TaskType = z.infer<typeof selectTaskSchema>;
 
 export const insertProjectSchema = createInsertSchema(projects);
 export const selectProjectSchema = createSelectSchema(projects);
-export type Project = z.infer<typeof selectProjectSchema>;
+export type ProjectType = z.infer<typeof selectProjectSchema>;

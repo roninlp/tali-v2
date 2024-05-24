@@ -2,6 +2,7 @@ import { z } from "zod";
 
 import { createTRPCRouter, protectedProcedure } from "@/server/api/trpc";
 import { insertTaskSchema, tasks } from "@/server/db/schema";
+import { TRPCError } from "@trpc/server";
 import {
   addDays,
   differenceInDays,
@@ -57,6 +58,32 @@ export const taskRouter = createTRPCRouter({
         return dayTasks;
       });
       return returnTasks;
+    }),
+
+  update: protectedProcedure
+    .input(
+      z.object({
+        id: z.number().int(),
+        name: z.string().optional(),
+        dueDate: z.date().optional(),
+        isCompleted: z.boolean().optional(),
+      }),
+    )
+    .mutation(async ({ ctx, input }) => {
+      const task = await ctx.db.query.tasks.findFirst({
+        where: eq(tasks.id, input.id),
+      });
+      if (!task) {
+        throw new TRPCError({ code: "NOT_FOUND" });
+      }
+      await ctx.db
+        .update(tasks)
+        .set({
+          name: input.name,
+          dueDate: input.dueDate,
+          isCompleted: input.isCompleted,
+        })
+        .where(eq(tasks.id, input.id));
     }),
 
   // getAllTasksOfMonth: protectedProcedure

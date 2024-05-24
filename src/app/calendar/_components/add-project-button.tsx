@@ -29,7 +29,7 @@ import {
 } from "@/components/ui/popover";
 import { newProjectSchema } from "@/lib/schemas";
 import { cn } from "@/lib/utils";
-import { type Project } from "@/server/db/schema";
+import { type ProjectType } from "@/server/db/schema";
 import { api } from "@/trpc/react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { format } from "date-fns-jalali";
@@ -83,7 +83,7 @@ export function AddProjectButton({
 
 interface NewProjectFormProps extends React.ComponentProps<"form"> {
   setOpen: Dispatch<SetStateAction<boolean>>;
-  project?: Project;
+  project?: ProjectType;
   setDropDownOpen?: Dispatch<SetStateAction<boolean>>;
 }
 
@@ -101,7 +101,7 @@ export function NewProjectForm({
     onMutate: async (newProject) => {
       await utils.project.getAll.cancel();
       const previousProjects = utils.project.getAll.getData();
-      const addedProject: Project = !!project
+      const addedProject: ProjectType = !!project
         ? { ...project, name: newProject.name }
         : {
             name: newProject.name,
@@ -113,7 +113,7 @@ export function NewProjectForm({
           };
       utils.project.getAll.setData(
         undefined,
-        (oldQueryData: Project[] | undefined) => {
+        (oldQueryData: ProjectType[] | undefined) => {
           if (!!project) {
             return (
               oldQueryData?.map((project) =>
@@ -122,7 +122,7 @@ export function NewProjectForm({
             );
           } else {
             return !!oldQueryData
-              ? ([addedProject, ...oldQueryData] as Project[])
+              ? ([addedProject, ...oldQueryData] as ProjectType[])
               : [];
           }
         },
