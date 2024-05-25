@@ -13,7 +13,4 @@ const localClient = createClient({
   url: "http://127.0.0.1:8080",
 });
 
-export const db = drizzle(
-  env.NODE_ENV === "production" ? client : localClient,
-  { schema },
-);
+export const db = drizzle(client, { schema });

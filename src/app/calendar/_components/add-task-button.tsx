@@ -109,7 +109,7 @@ function NewTaskForm({ className, setOpen, day }: NewTaskFormProps) {
   const form = useForm<z.infer<typeof newTaskSchema>>({
     defaultValues: {
       name: "",
-      dueDate: format(day, "yyyy-MM-dd HH:mm:ss"),
+      dueDate: day,
       projectId: 1,
     },
     resolver: zodResolver(newTaskSchema),

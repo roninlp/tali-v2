@@ -16,12 +16,15 @@ export const taskRouter = createTRPCRouter({
   create: protectedProcedure
     .input(insertTaskSchema)
     .mutation(async ({ ctx, input }) => {
-      await ctx.db.insert(tasks).values({
-        name: input.name,
-        dueDate: input.dueDate,
-        projectId: input.projectId,
-        createdById: ctx.session.user.id,
-      });
+      await ctx.db
+        .insert(tasks)
+        .values({
+          name: input.name,
+          dueDate: input.dueDate,
+          projectId: input.projectId,
+          createdById: ctx.session.user.id,
+        })
+        .returning();
     }),
   //create an api route to get all tasks between two dates
   getAllTasks: protectedProcedure

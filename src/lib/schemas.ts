@@ -15,5 +15,5 @@ export const newTaskSchema = z.object({
     .min(3, { message: "حداقل ۳ کاراکتر" })
     .max(15, { message: "حداکثر ۱۵ کاراکتر" }),
   projectId: z.number().int(),
-  dueDate: z.string(),
+  dueDate: z.date(),
 });

@@ -8,10 +8,7 @@ export default {
   out: "./drizzle/migrations",
   driver: "turso",
   dbCredentials: {
-    url:
-      env.NODE_ENV === "production"
-        ? env.DATABASE_URL
-        : "http://127.0.0.1:8080",
+    url: env.DATABASE_URL,
     authToken: env.DATABASE_AUTH_TOKEN,
   },
   tablesFilter: ["t3li_*"],
