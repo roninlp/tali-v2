@@ -97,15 +97,17 @@ export function NewProjectForm({
     resolver: zodResolver(newProjectSchema),
   });
   const utils = api.useUtils();
+  const allProjects = utils.project.getAll.getData();
+  console.log("🚀 ~ NewProjectForm ~ allProjects:", allProjects);
   const { mutate } = api.project.create.useMutation({
     onMutate: async (newProject) => {
       await utils.project.getAll.cancel();
       const previousProjects = utils.project.getAll.getData();
       const addedProject: ProjectType = !!project
-        ? project
+        ? { ...project, name: newProject.name }
         : {
             name: newProject.name,
-            id: 1,
+            id: Math.random(),
             createdAt: "",
             updatedAt: "",
             createdById: "1",
@@ -117,22 +119,12 @@ export function NewProjectForm({
           if (!!project) {
             return (
               oldQueryData?.map((oldProject) =>
-                oldProject.id === project.id ? project : oldProject,
+                oldProject.id === addedProject.id ? addedProject : oldProject,
               ) ?? []
             );
           } else {
             return !!oldQueryData
-              ? ([
-                  {
-                    name: newProject.name,
-                    id: 1,
-                    createdAt: "",
-                    updatedAt: "",
-                    createdById: "1",
-                    userId: "1",
-                  },
-                  ...oldQueryData,
-                ] as ProjectType[])
+              ? ([addedProject, ...oldQueryData] as ProjectType[])
               : [];
           }
         },

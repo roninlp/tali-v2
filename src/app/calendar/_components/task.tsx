@@ -6,7 +6,14 @@ import { cn } from "@/lib/utils";
 import { type TaskType } from "@/server/db/schema";
 import { api } from "@/trpc/react";
 import { Cross2Icon } from "@radix-ui/react-icons";
-import { endOfMonth, startOfMonth, startOfToday } from "date-fns-jalali";
+import { useQueryClient } from "@tanstack/react-query";
+import { getQueryKey } from "@trpc/react-query";
+import {
+  endOfMonth,
+  format,
+  startOfMonth,
+  startOfToday,
+} from "date-fns-jalali";
 
 type TaskProps = {
   task: TaskType;
@@ -15,36 +22,69 @@ type TaskProps = {
 const Task = ({
   task: { name, isCompleted, projectId, id, dueDate },
 }: TaskProps) => {
+  const queryClient = useQueryClient();
   const utils = api.useUtils();
   const firstDayOfCurrentMonth = startOfToday();
-  const mutate = api.task.update.useMutation({
+  const dayIndex = +format(dueDate, "d");
+  const update = api.task.update.useMutation({
     onMutate: async (newTask) => {
       await utils.task.getAllTasks.cancel();
-      const previousTasks = utils.task.getAllTasks.getData();
-      if (previousTasks === undefined) return;
+      const allTasksQueryKey = getQueryKey(api.task.getAllTasks, {
+        startDate: startOfMonth(firstDayOfCurrentMonth),
+        endDate: endOfMonth(firstDayOfCurrentMonth),
+      });
+      const previousTasks = queryClient.getQueryData(allTasksQueryKey);
+      console.log("🚀 ~ onMutate: ~ previousTasks:", previousTasks);
 
-      utils.task.getAllTasks.setData(
-        {
-          startDate: startOfMonth(firstDayOfCurrentMonth),
-          endDate: endOfMonth(firstDayOfCurrentMonth),
-        },
+      queryClient.setQueryData(
+        allTasksQueryKey,
         (oldQueryData: TaskType[][] | undefined) => {
-          console.time("time");
-          console.timeLog("time");
-          const updatedTasks = oldQueryData?.map((tasks) =>
+          if (oldQueryData === undefined) return;
+
+          return oldQueryData?.map((tasks) =>
             tasks.map((task) =>
-              task.id === id
+              task.id === newTask.id
                 ? {
                     ...task,
-                    ...newTask,
+                    isCompleted: newTask?.isCompleted ?? false,
                   }
                 : task,
             ),
           );
-          console.timeEnd("time");
-          return updatedTasks ?? [];
         },
       );
+
+      // utils.task.getAllTasks.setData(
+      //   {
+      //     startDate: startOfMonth(firstDayOfCurrentMonth),
+      //     endDate: endOfMonth(firstDayOfCurrentMonth),
+      //   },
+      //   (oldQueryData: TaskType[][] | undefined) => {
+      //     if (oldQueryData === undefined) return;
+      //     const newTasks = oldQueryData.map((days, index) =>
+      //       index === dayIndex - 1
+      //         ? [
+      //             ...days,
+      //             {
+      //               ...newTask,
+      //               isCompleted: newTask?.isCompleted ?? false,
+      //             },
+      //           ]
+      //         : days,
+      //     );
+      //     console.log("🚀 ~ onMutate: ~ newTasks:", newTasks);
+      //     return oldQueryData?.map((tasks) =>
+      //       tasks.map((task) =>
+      //         task.id === newTask.id
+      //           ? {
+      //               ...task,
+      //               isCompleted: newTask?.isCompleted ?? false,
+      //             }
+      //           : task,
+      //       ),
+      //     );
+      //   },
+      // );
       return { previousTasks };
     },
     onSettled: async () => {
@@ -59,7 +99,8 @@ const Task = ({
   });
 
   const onCheckboxChange = (e: boolean) => {
-    mutate.mutate({ id, isCompleted: e });
+    console.log("🚀 ~ onCheckboxChange ~ e:", e);
+    update.mutate({ id, isCompleted: e });
   };
 
   const handleDeleteTask = () => {

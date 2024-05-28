@@ -32,6 +32,7 @@ const PopoverContent = React.forwardRef<
   ) => (
     <PopoverPrimitive.Portal>
       <PopoverPrimitive.Content
+        dir="rtl"
         ref={ref}
         align={align}
         sideOffset={sideOffset}

@@ -22,11 +22,13 @@ export function Combobox({
   options,
   value,
   setValue,
+  placeholder = "انتخاب کنید...",
 }: {
   children: React.ReactNode;
   options: { label: string; value: number }[];
-  setValue: (name: string, value: number) => void;
+  setValue: (value: number) => void;
   value: number;
+  placeholder?: string;
 }) {
   const [open, setOpen] = useState(false);
   return (
@@ -34,15 +36,15 @@ export function Combobox({
       <PopoverTrigger asChild>{children}</PopoverTrigger>
       <PopoverContent className="w-full p-0">
         <Command>
-          <CommandInput placeholder="Search framework..." className="h-9" />
-          <CommandEmpty>No framework found.</CommandEmpty>
+          <CommandInput placeholder={placeholder} className="h-9" />
+          <CommandEmpty>خالی</CommandEmpty>
           <CommandGroup>
             {options.map((option) => (
               <CommandItem
                 value={option.label}
                 key={option.value}
                 onSelect={() => {
-                  setValue("language", option.value);
+                  setValue(option.value);
                   setOpen(false);
                 }}
               >

@@ -206,7 +206,8 @@ function NewTaskForm({ className, setOpen, day }: NewTaskFormProps) {
               <Combobox
                 options={projectsOptions as { value: number; label: string }[]}
                 value={field.value}
-                setValue={(name, value) => form.setValue("projectId", value)}
+                setValue={(value) => form.setValue("projectId", value)}
+                placeholder="انتخاب پروژه ..."
               >
                 <FormControl>
                   <Button
@@ -221,7 +222,7 @@ function NewTaskForm({ className, setOpen, day }: NewTaskFormProps) {
                       ? projectsOptions?.find(
                           (project) => project.value === field.value,
                         )?.label
-                      : "Select language"}
+                      : "انتخاب پروژه"}
                     <CaretSortIcon className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                   </Button>
                 </FormControl>
