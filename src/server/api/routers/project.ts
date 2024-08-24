@@ -12,12 +12,14 @@ export const projectRouter = createTRPCRouter({
   create: protectedProcedure
     .input(newProjectSchema)
     .mutation(async ({ ctx, input }) => {
+      console.log("🚀 ~ .mutation ~ input:", input);
       await ctx.db
         .insert(projects)
         .values({
           name: input.name,
           createdById: ctx.session.user.id,
           id: input.id,
+          color: input.color,
           updatedAt: String(input.updatedAt),
         })
         .onConflictDoUpdate({ target: projects.id, set: { name: input.name } });
@@ -35,6 +37,7 @@ export const projectRouter = createTRPCRouter({
       z.object({
         id: z.number().int(),
         name: z.string(),
+        color: z.string(),
       }),
     )
     .mutation(async ({ ctx, input }) => {
@@ -42,6 +45,7 @@ export const projectRouter = createTRPCRouter({
         .update(projects)
         .set({
           name: input.name,
+          color: input.color,
         })
         .where(eq(projects.id, input.id));
     }),

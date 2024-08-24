@@ -5,6 +5,8 @@ import Link from "next/link";
 import SignIn from "./_components/sign-in";
 import SignOut from "./_components/sign-out";
 import { ModeToggle } from "./_components/theme-toggle";
+import { DayPicker } from "react-day-picker";
+import { DatePicker } from "@/components/date-picker";
 
 export default async function Home() {
   const session = await getServerAuthSession();
@@ -43,6 +45,9 @@ export default async function Home() {
         <Card className="col-span-2">
           <CardContent>hello</CardContent>
         </Card>
+
+        <DatePicker />
+
         <Card>
           <CardContent>hello</CardContent>
         </Card>

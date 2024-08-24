@@ -8,7 +8,7 @@ import GitHubProvider from "next-auth/providers/github";
 
 import { env } from "@/env";
 import { db } from "@/server/db";
-import { sqliteTable } from "@/server/db/schema";
+import * as schema from "@/server/db/schema";
 import { type Adapter } from "next-auth/adapters";
 
 /**
@@ -47,7 +47,12 @@ export const authOptions: NextAuthOptions = {
       },
     }),
   },
-  adapter: DrizzleAdapter(db, sqliteTable) as Adapter,
+  adapter: DrizzleAdapter(db, {
+    usersTable: schema.users,
+    accountsTable: schema.accounts,
+    sessionsTable: schema.sessions,
+    verificationTokensTable: schema.verificationTokens
+  }) as Adapter,
   providers: [
     // DiscordProvider({
     //   clientId: env.DISCORD_CLIENT_ID,

@@ -4,6 +4,7 @@
 
 @layer base {
   :root {
+    --project-red: "";
     --background: 0 0% 100%;
     --foreground: 240 10% 3.9%;
     --card: 0 0% 100%;
@@ -24,6 +25,13 @@
     --input: 240 5.9% 90%;
     --ring: 346.8 77.2% 49.8%;
     --radius: 0.5rem;
+
+    --project-orange: 4 90% 58%;
+    --project-red: 340 82% 52%;
+    --project-pink: 291 64% 42%;
+    --project-purple: 262 52% 47%;
+    --project-deep-purple: 231 48% 48%;
+    --project-blue: 207 90% 54%;
   }
 
   .dark {

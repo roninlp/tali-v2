@@ -7,6 +7,7 @@ export const newProjectSchema = z.object({
     .max(15, { message: "حداکثر ۱۵ کاراکتر" }),
   id: z.number().int().optional(),
   updatedAt: z.string().optional(),
+  color: z.string(),
 });
 
 export const newTaskSchema = z.object({

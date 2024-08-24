@@ -26,18 +26,14 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
+import { getStartAndEndOfMonth } from "@/helpers/date-helpers";
 import { newTaskSchema } from "@/lib/schemas";
 import { cn } from "@/lib/utils";
 import { TaskType } from "@/server/db/schema";
 import { api } from "@/trpc/react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { CaretSortIcon, PlusIcon } from "@radix-ui/react-icons";
-import {
-  endOfMonth,
-  format,
-  startOfMonth,
-  startOfToday,
-} from "date-fns-jalali";
+import { getDate } from "date-fns-jalali";
 import { useState, type Dispatch, type SetStateAction } from "react";
 import { useForm } from "react-hook-form";
 import { useMediaQuery } from "usehooks-ts";
@@ -114,19 +110,17 @@ function NewTaskForm({ className, setOpen, day }: NewTaskFormProps) {
     },
     resolver: zodResolver(newTaskSchema),
   });
-  const dayIndex = +format(day, "d");
+  const dayIndex = getDate(day);
   const utils = api.useUtils();
-  const firstDayOfCurrentMonth = startOfToday();
+  const monthObj = getStartAndEndOfMonth(day);
+
   const { mutate } = api.task.create.useMutation({
     onMutate: async (newTask) => {
       await utils.task.getAllTasks.cancel();
-      const previousTasks = utils.task.getAllTasks.getData();
+      const previousTasks = utils.task.getAllTasks.getData(monthObj);
 
       utils.task.getAllTasks.setData(
-        {
-          startDate: startOfMonth(firstDayOfCurrentMonth),
-          endDate: endOfMonth(firstDayOfCurrentMonth),
-        },
+        monthObj,
         (oldQueryData: TaskType[][] | undefined) => {
           return oldQueryData?.map((days, index) =>
             index === dayIndex - 1
@@ -164,7 +158,7 @@ function NewTaskForm({ className, setOpen, day }: NewTaskFormProps) {
     setOpen(false);
     mutate({
       name,
-      projectId: Number(projectId),
+      projectId: projectId,
       dueDate: day,
       createdById: "",
     });
@@ -175,7 +169,7 @@ function NewTaskForm({ className, setOpen, day }: NewTaskFormProps) {
     value: project.id,
   }));
 
-  return (
+  return !!projectsOptions && projectsOptions?.length > 0 ? (
     <Form {...form}>
       <form
         onSubmit={form.handleSubmit(onSubmit)}
@@ -204,7 +198,7 @@ function NewTaskForm({ className, setOpen, day }: NewTaskFormProps) {
             <FormItem className="grid gap-2">
               <FormLabel>پروژه</FormLabel>
               <Combobox
-                options={projectsOptions as { value: number; label: string }[]}
+                options={projectsOptions}
                 value={field.value}
                 setValue={(value) => form.setValue("projectId", value)}
                 placeholder="انتخاب پروژه ..."
@@ -239,5 +233,7 @@ function NewTaskForm({ className, setOpen, day }: NewTaskFormProps) {
         <Button type="submit">ذخیره</Button>
       </form>
     </Form>
+  ) : (
+    <div>لطفا حداقل یک پروژه اضافه کنید.</div>
   );
 }

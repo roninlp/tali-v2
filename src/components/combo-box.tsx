@@ -8,6 +8,7 @@ import {
   CommandGroup,
   CommandInput,
   CommandItem,
+  CommandList,
 } from "@/components/ui/command";
 import {
   Popover,
@@ -37,27 +38,29 @@ export function Combobox({
       <PopoverContent className="w-full p-0">
         <Command>
           <CommandInput placeholder={placeholder} className="h-9" />
-          <CommandEmpty>خالی</CommandEmpty>
-          <CommandGroup>
-            {options.map((option) => (
-              <CommandItem
-                value={option.label}
-                key={option.value}
-                onSelect={() => {
-                  setValue(option.value);
-                  setOpen(false);
-                }}
-              >
-                {option.label}
-                <CheckIcon
-                  className={cn(
-                    "ml-auto h-4 w-4",
-                    option.value === value ? "opacity-100" : "opacity-0",
-                  )}
-                />
-              </CommandItem>
-            ))}
-          </CommandGroup>
+          <CommandList>
+            <CommandEmpty>خالی</CommandEmpty>
+            <CommandGroup>
+              {options.map((option) => (
+                <CommandItem
+                  key={option.value}
+                  value={String(option.value)}
+                  onSelect={(currentValue) => {
+                    setValue(+currentValue);
+                    setOpen(false);
+                  }}
+                >
+                  {option.label}
+                  <CheckIcon
+                    className={cn(
+                      "ml-auto h-4 w-4",
+                      option.value === value ? "opacity-100" : "opacity-0",
+                    )}
+                  />
+                </CommandItem>
+              ))}
+            </CommandGroup>
+          </CommandList>
         </Command>
       </PopoverContent>
     </Popover>

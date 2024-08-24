@@ -1,5 +1,6 @@
 "use client";
 
+import ColorSelect from "@/components/color-select";
 import { Button } from "@/components/ui/button";
 import {
   Drawer,
@@ -93,18 +94,19 @@ export function NewProjectForm({
   project,
 }: NewProjectFormProps) {
   const form = useForm<z.infer<typeof newProjectSchema>>({
-    defaultValues: { name: project?.name ?? "" },
+    defaultValues: {
+      name: project?.name ?? "",
+      color: project?.color ?? "#f44336",
+    },
     resolver: zodResolver(newProjectSchema),
   });
   const utils = api.useUtils();
-  const allProjects = utils.project.getAll.getData();
-  console.log("🚀 ~ NewProjectForm ~ allProjects:", allProjects);
   const { mutate } = api.project.create.useMutation({
     onMutate: async (newProject) => {
       await utils.project.getAll.cancel();
       const previousProjects = utils.project.getAll.getData();
       const addedProject: ProjectType = !!project
-        ? { ...project, name: newProject.name }
+        ? { ...project, name: newProject.name, color: newProject.color }
         : {
             name: newProject.name,
             id: Math.random(),
@@ -112,6 +114,7 @@ export function NewProjectForm({
             updatedAt: "",
             createdById: "1",
             userId: "1",
+            color: newProject.color ?? "#f44336",
           };
       utils.project.getAll.setData(
         undefined,
@@ -139,11 +142,12 @@ export function NewProjectForm({
     },
   });
 
-  async function onSubmit({ name }: z.infer<typeof newProjectSchema>) {
+  async function onSubmit({ name, color }: z.infer<typeof newProjectSchema>) {
     handleClose();
     mutate({
       name,
       id: project?.id,
+      color,
       updatedAt: format(new Date(), "yyyy-MM-dd HH:mm:ss"),
     });
   }
@@ -151,6 +155,10 @@ export function NewProjectForm({
   const handleClose = () => {
     setOpen(false);
   };
+
+  form.getValues("color");
+
+  console.log(form.getValues("color"), "color");
 
   return (
     <Form {...form}>
@@ -165,10 +173,41 @@ export function NewProjectForm({
             <FormItem className="grid gap-2">
               <FormLabel>نام پروژه</FormLabel>
               <FormControl>
-                <Input placeholder="نام پروژه ..." {...field} />
+                <Input
+                  className="flex-grow"
+                  placeholder="نام پروژه ..."
+                  {...field}
+                />
               </FormControl>
               <FormDescription>
                 نام پروژه جدیدی که میخواهید اضافه کنید.
+              </FormDescription>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <FormField
+          control={form.control}
+          name="color"
+          render={({ field }) => (
+            <FormItem className="grid gap-2">
+              <FormLabel>رنگ</FormLabel>
+              <FormControl>
+                <ColorSelect
+                  value={field.value}
+                  setValue={(value) => form.setValue("color", value)}
+                  colors={[
+                    "#f44336",
+                    "#e91e63",
+                    "#9c27b0",
+                    "#673ab7",
+                    "#3f51b5",
+                    "#2196f3",
+                  ]}
+                />
+              </FormControl>
+              <FormDescription>
+                رنگ پروژه جدیدی که میخواهید اضافه کنید.
               </FormDescription>
               <FormMessage />
             </FormItem>

@@ -1,6 +1,13 @@
 "use client";
 import { Button } from "@/components/ui/button";
-import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -8,16 +15,12 @@ import {
   DropdownMenuShortcut,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { projectListColorClassMap } from "@/data/project-colors";
 import { cn } from "@/lib/utils";
 import { type ProjectType } from "@/server/db/schema";
 import { api } from "@/trpc/react";
 import { DotsVerticalIcon } from "@radix-ui/react-icons";
-import {
-  useState,
-  type Dispatch,
-  type ReactNode,
-  type SetStateAction,
-} from "react";
+import { useState, type Dispatch, type SetStateAction } from "react";
 import { AddProjectButton, NewProjectForm } from "./add-project-button";
 
 type ProjectListProps = {
@@ -73,6 +76,8 @@ function ProjectComponent({ project }: { project: ProjectType }) {
         isDeletePending && deleteVariables.projectId === project.id
           ? "bg-muted text-muted-foreground"
           : "",
+        "border border-r-4",
+        projectListColorClassMap[project.color],
         "group flex items-center justify-start gap-2 rounded-md px-2 py-2 hover:bg-secondary",
       )}
     >
@@ -126,10 +131,7 @@ function ProjectComponent({ project }: { project: ProjectType }) {
           <EditProjectDialog
             setDropDownOpen={setDropDownOpen}
             project={project}
-          >
-            <div>ویرایش</div>
-            <DropdownMenuShortcut>E</DropdownMenuShortcut>
-          </EditProjectDialog>
+          />
         </DropdownMenuContent>
       </DropdownMenu>
       <span>{project.name}</span>
@@ -139,13 +141,11 @@ function ProjectComponent({ project }: { project: ProjectType }) {
 
 type EditProjectDialogProps = {
   project: ProjectType;
-  children: ReactNode;
   setDropDownOpen: Dispatch<SetStateAction<boolean>>;
 };
 
 function EditProjectDialog({
   project,
-  children,
   setDropDownOpen,
 }: EditProjectDialogProps) {
   const [open, setOpen] = useState(false);
@@ -153,10 +153,15 @@ function EditProjectDialog({
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
         <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
-          {children}
+          <div>ویرایش</div>
+          <DropdownMenuShortcut>E</DropdownMenuShortcut>
         </DropdownMenuItem>
       </DialogTrigger>
       <DialogContent onCloseAutoFocus={() => setDropDownOpen(false)} dir="rtl">
+        <DialogHeader>
+          <DialogTitle>ویرایش پروژه</DialogTitle>
+          <DialogDescription>skdfhksd</DialogDescription>
+        </DialogHeader>
         <NewProjectForm project={project} setOpen={setOpen} />
       </DialogContent>
     </Dialog>

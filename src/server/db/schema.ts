@@ -87,6 +87,7 @@ export const projects = sqliteTable("project", {
   updatedAt: text("updated_at")
     .notNull()
     .default(sql`CURRENT_TIMESTAMP`),
+  color: text("color").notNull().default("#f44336"),
   userId: text("user_id"),
 });
 
