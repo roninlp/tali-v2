@@ -18,6 +18,7 @@ import {
 import { projectListColorClassMap } from "@/data/project-colors";
 import { cn } from "@/lib/utils";
 import { type ProjectType } from "@/server/db/schema";
+import { useMonthDateState } from "@/state/current-month";
 import { api } from "@/trpc/react";
 import { DotsVerticalIcon } from "@radix-ui/react-icons";
 import { useState, type Dispatch, type SetStateAction } from "react";
@@ -27,6 +28,7 @@ type ProjectListProps = {
   projects: ProjectType[];
 };
 export default function ProjectsList({ projects }: ProjectListProps) {
+  const currentMonth = useMonthDateState();
   const projectQuery = api.project.getAll.useQuery(undefined, {
     initialData: projects,
   });
@@ -47,10 +49,15 @@ export default function ProjectsList({ projects }: ProjectListProps) {
   );
 }
 
-function ProjectComponent({ project }: { project: ProjectType }) {
+type ProjectComponentProps = {
+  project: ProjectType;
+};
+
+function ProjectComponent({ project }: ProjectComponentProps) {
   const [dropDownOpen, setDropDownOpen] = useState(false);
   const [showConfirmDelete, setShowConfirmDelete] = useState(false);
   const utils = api.useUtils();
+
   const {
     mutate: deleteProject,
     isPending: isDeletePending,

@@ -1,12 +1,14 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
+import { colStartClasses, weekDays } from "@/data/calendar-data";
+import { getStartAndEndOfMonth } from "@/helpers/date-helpers";
 import { cn } from "@/lib/utils";
 import { type TaskType } from "@/server/db/schema";
+import { useMonthActions, useMonthState } from "@/state/current-month";
 import { api } from "@/trpc/react";
 import { ChevronLeftIcon, ChevronRightIcon } from "@radix-ui/react-icons";
 import {
-  add,
   eachDayOfInterval,
   endOfMonth,
   format,
@@ -15,7 +17,6 @@ import {
   isSameMonth,
   isToday,
   parse,
-  startOfMonth,
   startOfToday,
 } from "date-fns-jalali";
 import { useState } from "react";
@@ -23,10 +24,10 @@ import { AddTaskButton } from "./add-task-button";
 import Day from "./day";
 
 export default function Calendar({ tasks }: { tasks: TaskType[][] }) {
-  // unstable_noStore();
   const today = startOfToday();
   const [selectedDay, setSelectedDay] = useState(today);
-  const [currentMonth, setCurrentMonth] = useState(format(today, "MMM-yyyy"));
+  const currentMonth = useMonthState();
+  const { incrementMonth, decrementMonth } = useMonthActions();
 
   const firstDayOfCurrentMonth = parse(currentMonth, "MMM-yyyy", new Date());
 
@@ -35,20 +36,8 @@ export default function Calendar({ tasks }: { tasks: TaskType[][] }) {
     end: endOfMonth(firstDayOfCurrentMonth),
   });
 
-  function previousMonth() {
-    const firstDayNextMonth = add(firstDayOfCurrentMonth, { months: -1 });
-    setCurrentMonth(format(firstDayNextMonth, "MMM-yyyy"));
-  }
-  function nextMonth() {
-    const firstDayNextMonth = add(firstDayOfCurrentMonth, { months: 1 });
-    setCurrentMonth(format(firstDayNextMonth, "MMM-yyyy"));
-  }
-
   const { data: allTasks } = api.task.getAllTasks.useQuery(
-    {
-      startDate: startOfMonth(firstDayOfCurrentMonth),
-      endDate: endOfMonth(firstDayOfCurrentMonth),
-    },
+    getStartAndEndOfMonth(firstDayOfCurrentMonth),
     {
       initialData: tasks,
     },
@@ -65,11 +54,11 @@ export default function Calendar({ tasks }: { tasks: TaskType[][] }) {
         </h2>
 
         <div className="flex">
-          <Button onClick={previousMonth} variant="ghost" size="icon">
+          <Button onClick={decrementMonth} variant="ghost" size="icon">
             <span className="sr-only">ماه قبل</span>
             <ChevronRightIcon />
           </Button>
-          <Button onClick={nextMonth} variant="ghost" size="icon">
+          <Button onClick={incrementMonth} variant="ghost" size="icon">
             <span className="sr-only">ماه قبل</span>
             <ChevronLeftIcon />
           </Button>
@@ -110,14 +99,3 @@ export default function Calendar({ tasks }: { tasks: TaskType[][] }) {
     </div>
   );
 }
-
-const colStartClasses = [
-  "col-start-2",
-  "col-start-3",
-  "col-start-4",
-  "col-start-5",
-  "col-start-6",
-  "col-start-7",
-  "",
-];
-const weekDays = ["Sat", "Sun", "Mon", "Tue", "Wed", "Thu", "Fri"];
