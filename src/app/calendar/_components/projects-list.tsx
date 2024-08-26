@@ -17,43 +17,58 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { projectListColorClassMap } from "@/data/project-colors";
 import { cn } from "@/lib/utils";
-import { type ProjectType } from "@/server/db/schema";
+import { TaskType, type ProjectType } from "@/server/db/schema";
 import { useMonthDateState } from "@/state/current-month";
 import { api } from "@/trpc/react";
 import { DotsVerticalIcon } from "@radix-ui/react-icons";
 import { useState, type Dispatch, type SetStateAction } from "react";
 import { AddProjectButton, NewProjectForm } from "./add-project-button";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Skeleton } from "@/components/ui/skeleton";
+import { getStartAndEndOfMonth } from "@/helpers/date-helpers";
+import { Progress } from "@/components/ui/progress";
 
-type ProjectListProps = {
-  projects: ProjectType[];
-};
-export default function ProjectsList({ projects }: ProjectListProps) {
+
+export default function ProjectsList() {
   const currentMonth = useMonthDateState();
-  const projectQuery = api.project.getAll.useQuery(undefined, {
-    initialData: projects,
+  const { data, isPending } = api.project.getAll.useQuery(undefined, {
+    staleTime: Infinity,
   });
+  const { data: allTasks } = api.task.getAllTasks.useQuery(getStartAndEndOfMonth(currentMonth))
 
   return (
-    <div className="flex min-w-32 flex-col gap-8">
-      <div>
-        <AddProjectButton>
-          <Button variant="secondary">پروژه جدید</Button>
-        </AddProjectButton>
-      </div>
-      <ul className="flex flex-col gap-4">
-        {projectQuery?.data?.map((project) => (
-          <ProjectComponent key={project.id} project={project} />
-        ))}
-      </ul>
-    </div>
+    <Card>
+      <CardHeader>
+        <CardTitle>پروژه‌ها</CardTitle>
+        {isPending ? <Skeleton className="h-10 w-full" /> :
+          <CardDescription>
+            {data?.length} پروژه
+          </CardDescription>}
+      </CardHeader>
+      <CardContent>
+        <div className="flex min-w-32 flex-col gap-8">
+          <div>
+            <AddProjectButton>
+              <Button variant="secondary">پروژه جدید</Button>
+            </AddProjectButton>
+          </div>
+          <ul className="flex flex-col gap-4">
+            {data?.map((project) => (
+              <ProjectComponent key={project.id} project={project} tasks={allTasks?.flat().filter(task => task.projectId === project.id)} />
+            ))}
+          </ul>
+        </div>
+      </CardContent>
+    </Card>
   );
 }
 
 type ProjectComponentProps = {
   project: ProjectType;
+  tasks: TaskType[] | undefined
 };
 
-function ProjectComponent({ project }: ProjectComponentProps) {
+function ProjectComponent({ project, tasks }: ProjectComponentProps) {
   const [dropDownOpen, setDropDownOpen] = useState(false);
   const [showConfirmDelete, setShowConfirmDelete] = useState(false);
   const utils = api.useUtils();
@@ -85,7 +100,8 @@ function ProjectComponent({ project }: ProjectComponentProps) {
           : "",
         "border border-r-4",
         projectListColorClassMap[project.color],
-        "group flex items-center justify-start gap-2 rounded-md px-2 py-2 hover:bg-secondary",
+        "group relative flex items-center justify-start gap-2 rounded-md px-2 py-2 transition-all hover:bg-secondary",
+        !!tasks && tasks?.length > 0 ? "hover:pb-4" : ""
       )}
     >
       <DropdownMenu
@@ -141,7 +157,19 @@ function ProjectComponent({ project }: ProjectComponentProps) {
           />
         </DropdownMenuContent>
       </DropdownMenu>
-      <span>{project.name}</span>
+      <div className="flex w-full gap-3 justify-between">
+        <span>{project.name}</span>
+        {!!tasks && tasks?.length > 0 ?
+          <span className="pl-2">
+            {tasks?.filter(task => task.isCompleted).length}/{tasks?.length}
+          </span>
+          : null
+        }
+      </div>
+      {!!tasks && tasks?.length > 0 ?
+        <Progress className="hidden group-hover:block absolute w-[100%] bottom-0 right-0" value={tasks?.filter(task => task.isCompleted).length * 100 / tasks?.length} />
+        : null
+      }
     </li>
   );
 }

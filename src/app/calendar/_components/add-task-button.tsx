@@ -26,6 +26,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { getStartAndEndOfMonth } from "@/helpers/date-helpers";
 import { newTaskSchema } from "@/lib/schemas";
 import { cn } from "@/lib/utils";
@@ -125,19 +126,19 @@ function NewTaskForm({ className, setOpen, day }: NewTaskFormProps) {
           return oldQueryData?.map((days, index) =>
             index === dayIndex - 1
               ? [
-                  ...days,
-                  {
-                    name: newTask.name,
-                    projectId: newTask.projectId,
-                    id: 1,
-                    createdById: "",
-                    description: "",
-                    createdAt: "",
-                    updatedAt: "",
-                    dueDate: day,
-                    isCompleted: false,
-                  },
-                ]
+                ...days,
+                {
+                  name: newTask.name,
+                  projectId: newTask.projectId,
+                  id: 1,
+                  createdById: "",
+                  description: "",
+                  createdAt: "",
+                  updatedAt: "",
+                  dueDate: day,
+                  isCompleted: false,
+                },
+              ]
               : days,
           );
         },
@@ -158,7 +159,7 @@ function NewTaskForm({ className, setOpen, day }: NewTaskFormProps) {
     setOpen(false);
     mutate({
       name,
-      projectId: projectId,
+      projectId: +projectId,
       dueDate: day,
       createdById: "",
     });
@@ -180,9 +181,9 @@ function NewTaskForm({ className, setOpen, day }: NewTaskFormProps) {
           name="name"
           render={({ field }) => (
             <FormItem className="grid gap-2">
-              <FormLabel>نام تسک</FormLabel>
+              <FormLabel>عنوان تسک</FormLabel>
               <FormControl>
-                <Input placeholder="نام پروژه ..." {...field} />
+                <Input placeholder="عنوان تسک ..." {...field} />
               </FormControl>
               {/* <FormDescription>
                 نام تسک جدیدی که میخواهید اضافه کنید.
@@ -197,34 +198,21 @@ function NewTaskForm({ className, setOpen, day }: NewTaskFormProps) {
           render={({ field }) => (
             <FormItem className="grid gap-2">
               <FormLabel>پروژه</FormLabel>
-              <Combobox
-                options={projectsOptions}
-                value={field.value}
-                setValue={(value) => form.setValue("projectId", value)}
-                placeholder="انتخاب پروژه ..."
-              >
+              <Select dir="rtl" onValueChange={(val) => form.setValue("projectId", +val)}>
                 <FormControl>
-                  <Button
-                    variant="outline"
-                    role="combobox"
-                    className={cn(
-                      "w-full justify-between",
-                      !field.value && "text-muted-foreground",
-                    )}
-                  >
-                    {field.value
-                      ? projectsOptions?.find(
-                          (project) => project.value === field.value,
-                        )?.label
-                      : "انتخاب پروژه"}
-                    <CaretSortIcon className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-                  </Button>
+                  <SelectTrigger>
+                    <SelectValue placeholder="انتخاب پروژه" />
+                  </SelectTrigger>
                 </FormControl>
-              </Combobox>
-              {/* <FormDescription>
-                انتخاب پروژه که تمام پروژه های در حال حاضر در قسمت انجام شده
-                است.
-              </FormDescription> */}
+                <SelectContent>
+                  {projectsOptions.map(project => (
+
+                    <SelectItem key={project.value} value={project.value.toString()}>{project.label}</SelectItem>
+                  ))
+                  }
+
+                </SelectContent>
+              </Select>
               <FormMessage />
             </FormItem>
           )}

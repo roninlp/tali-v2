@@ -6,13 +6,8 @@ import Calendar from "./_components/calendar";
 const CalendarPage = async () => {
   const session = await getServerAuthSession();
   if (!session) return <div>not logged in</div>;
-  const today = startOfToday();
 
-  const tasks = await api.task.getAllTasks({
-    startDate: startOfMonth(today),
-    endDate: endOfMonth(today),
-  });
-  return <Calendar tasks={tasks} />;
+  return <Calendar />;
 };
 
 export default CalendarPage;

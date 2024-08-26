@@ -15,7 +15,6 @@ import ProjectsList from "./_components/projects-list";
 
 const CalendarLayout = async ({ children }: { children: ReactNode }) => {
   const session = await getServerAuthSession();
-  const projects = await api.project.getAll();
   return (
     <div
       dir="rtl"
@@ -32,17 +31,7 @@ const CalendarLayout = async ({ children }: { children: ReactNode }) => {
       </div>
       <div className="flex h-full w-full flex-grow">
         <div className="flex w-1/5  flex-col gap-4 px-4 py-8">
-          <Card>
-            <CardHeader>
-              <CardTitle>پروژه‌ها</CardTitle>
-              <CardDescription>
-                شما {projects.length} پروژه در دسترس دارید
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <ProjectsList projects={projects} />
-            </CardContent>
-          </Card>
+          <ProjectsList />
         </div>
         {children}
       </div>

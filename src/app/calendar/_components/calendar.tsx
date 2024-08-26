@@ -22,8 +22,9 @@ import {
 import { useState } from "react";
 import { AddTaskButton } from "./add-task-button";
 import Day from "./day";
+import { Skeleton } from "@/components/ui/skeleton";
 
-export default function Calendar({ tasks }: { tasks: TaskType[][] }) {
+export default function Calendar() {
   const today = startOfToday();
   const [selectedDay, setSelectedDay] = useState(today);
   const currentMonth = useMonthState();
@@ -36,10 +37,10 @@ export default function Calendar({ tasks }: { tasks: TaskType[][] }) {
     end: endOfMonth(firstDayOfCurrentMonth),
   });
 
-  const { data: allTasks } = api.task.getAllTasks.useQuery(
+  const { data: allTasks, isPending } = api.task.getAllTasks.useQuery(
     getStartAndEndOfMonth(firstDayOfCurrentMonth),
     {
-      initialData: tasks,
+      staleTime: 30 * 1000
     },
   );
 
@@ -79,19 +80,20 @@ export default function Calendar({ tasks }: { tasks: TaskType[][] }) {
             className={cn(
               dayIndex === 0 && colStartClasses[getDay(day)],
               !isEqual(day, selectedDay) &&
-                !isToday(day) &&
-                !isSameMonth(day, firstDayOfCurrentMonth) &&
-                "opacity-30",
+              !isToday(day) &&
+              !isSameMonth(day, firstDayOfCurrentMonth) &&
+              "opacity-30",
               isToday(day) && "bg-primary/10",
               "group relative flex flex-col items-start gap-1 overflow-clip border-b p-1",
             )}
           >
             <AddTaskButton day={day} />
             <Day
-              tasks={allTasks[dayIndex]}
+              tasks={!!allTasks ? allTasks[dayIndex] : []}
               day={day}
               selectedDay={selectedDay}
               firstDayOfCurrentMonth={firstDayOfCurrentMonth}
+              isPending={isPending}
             />
           </div>
         ))}
