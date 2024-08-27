@@ -3,17 +3,6 @@
 import ColorSelect from "@/components/color-select";
 import { Button } from "@/components/ui/button";
 import {
-  Drawer,
-  DrawerClose,
-  DrawerContent,
-  DrawerDescription,
-  DrawerFooter,
-  DrawerHeader,
-  DrawerTitle,
-  DrawerTrigger,
-} from "@/components/ui/drawer";
-import {
-  Form,
   FormControl,
   FormDescription,
   FormField,
@@ -22,65 +11,15 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import {
-  Popover,
-  PopoverArrow,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
 import { newProjectSchema } from "@/lib/schemas";
 import { cn } from "@/lib/utils";
-import { type ProjectType } from "@/server/db/schema";
+import { ProjectType } from "@/server/db/schema";
 import { api } from "@/trpc/react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { format } from "date-fns-jalali";
-import { useState, type Dispatch, type SetStateAction } from "react";
-import { useForm } from "react-hook-form";
-import { useMediaQuery } from "usehooks-ts";
-import { type z } from "zod";
-
-export function AddProjectButton({
-  children,
-  projectId,
-}: {
-  children: React.ReactNode;
-  projectId?: number;
-}) {
-  const [open, setOpen] = useState(false);
-  const isDesktop = useMediaQuery("(min-width: 768px)");
-
-  if (isDesktop) {
-    return (
-      <Popover open={open} onOpenChange={setOpen}>
-        <PopoverTrigger asChild>{children}</PopoverTrigger>
-        <PopoverContent dir="rtl" className="sm:max-w-[425px]">
-          <NewProjectForm setOpen={setOpen} />
-          <PopoverArrow />
-        </PopoverContent>
-      </Popover>
-    );
-  }
-
-  return (
-    <Drawer open={open} onOpenChange={setOpen}>
-      <DrawerTrigger asChild>{children}</DrawerTrigger>
-      <DrawerContent>
-        <DrawerHeader className="text-left">
-          <DrawerTitle>پروژه جدید</DrawerTitle>
-          <DrawerDescription>
-            Make changes to your profile here. Click save when you&apos;re done.
-          </DrawerDescription>
-        </DrawerHeader>
-        <NewProjectForm setOpen={setOpen} className="px-4" />
-        <DrawerFooter className="pt-2">
-          <DrawerClose asChild>
-            <Button variant="outline">Cancel</Button>
-          </DrawerClose>
-        </DrawerFooter>
-      </DrawerContent>
-    </Drawer>
-  );
-}
+import { Dispatch, SetStateAction } from "react";
+import { Form, useForm } from "react-hook-form";
+import { z } from "zod";
 
 interface NewProjectFormProps extends React.ComponentProps<"form"> {
   setOpen: Dispatch<SetStateAction<boolean>>;
@@ -100,7 +39,9 @@ export function NewProjectForm({
     },
     resolver: zodResolver(newProjectSchema),
   });
+
   const utils = api.useUtils();
+
   const { mutate } = api.project.create.useMutation({
     onMutate: async (newProject) => {
       await utils.project.getAll.cancel();
@@ -155,10 +96,6 @@ export function NewProjectForm({
   const handleClose = () => {
     setOpen(false);
   };
-
-  form.getValues("color");
-
-  console.log(form.getValues("color"), "color");
 
   return (
     <Form {...form}>

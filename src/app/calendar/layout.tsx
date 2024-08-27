@@ -1,17 +1,9 @@
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
 import { getServerAuthSession } from "@/server/auth";
-import { api } from "@/trpc/server";
 import { type ReactNode } from "react";
 import SignIn from "../_components/sign-in";
 import SignOut from "../_components/sign-out";
 import { ModeToggle } from "../_components/theme-toggle";
-import ProjectsList from "./_components/projects-list";
+import ProjectsList from "./_components/project/projects-list";
 
 const CalendarLayout = async ({ children }: { children: ReactNode }) => {
   const session = await getServerAuthSession();

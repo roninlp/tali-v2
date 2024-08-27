@@ -22,7 +22,7 @@ export const projectRouter = createTRPCRouter({
           color: input.color,
           updatedAt: String(input.updatedAt),
         })
-        .onConflictDoUpdate({ target: projects.id, set: { name: input.name } });
+        .onConflictDoUpdate({ target: projects.id, set: { name: input.name, color: input.color } });
     }),
 
   delete: protectedProcedure

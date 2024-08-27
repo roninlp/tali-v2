@@ -1,15 +1,15 @@
+import { Skeleton } from "@/components/ui/skeleton";
 import { cn } from "@/lib/utils";
 import { type TaskType } from "@/server/db/schema";
 import { format, isEqual, isSameMonth, isToday } from "date-fns-jalali";
-import Task from "./task";
-import { Skeleton } from "@/components/ui/skeleton";
+import Task from "./task/task";
 
 type DayProps = {
   tasks: TaskType[] | undefined;
   day: Date;
   selectedDay: Date;
   firstDayOfCurrentMonth: Date;
-  isPending: boolean
+  isPending: boolean;
 };
 
 export default function Day({
@@ -17,7 +17,7 @@ export default function Day({
   selectedDay,
   firstDayOfCurrentMonth,
   tasks,
-  isPending
+  isPending,
 }: DayProps) {
   return (
     <>
@@ -27,12 +27,12 @@ export default function Day({
           !isEqual(day, selectedDay) && isToday(day) && "text-primary",
           !isEqual(day, selectedDay) && !isToday(day) && "text-foreground",
           !isEqual(day, selectedDay) &&
-          !isToday(day) &&
-          isSameMonth(day, firstDayOfCurrentMonth) &&
-          "text-foreground",
+            !isToday(day) &&
+            isSameMonth(day, firstDayOfCurrentMonth) &&
+            "text-foreground",
           isEqual(day, selectedDay) &&
-          isToday(day) &&
-          "bg-primary text-primary-foreground",
+            isToday(day) &&
+            "bg-primary text-primary-foreground",
           isEqual(day, selectedDay) && !isToday(day) && "bg-accent",
           !isEqual(day, selectedDay) && "group-hover:bg-muted",
           (isEqual(day, selectedDay) || isToday(day)) && "font-semibold",
@@ -43,11 +43,13 @@ export default function Day({
           {format(day, "d")}
         </time>
       </div>
-      {isPending ? <Skeleton className="h-8 w-full" /> :
+      {isPending ? (
+        <Skeleton className="h-6 w-full" />
+      ) : (
         <ul className="relative flex w-full shrink flex-col gap-1">
           {tasks?.map((task) => <Task key={task.id} task={task} />)}
         </ul>
-      }
+      )}
     </>
   );
 }

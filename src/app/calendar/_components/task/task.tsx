@@ -3,16 +3,12 @@ import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 import { projectListColorClassMap } from "@/data/project-colors";
+import { getStartAndEndOfMonth } from "@/helpers/date-helpers";
 import { cn } from "@/lib/utils";
 import { type TaskType } from "@/server/db/schema";
+import { useMonthDateState } from "@/state/current-month";
 import { api } from "@/trpc/react";
 import { Cross2Icon } from "@radix-ui/react-icons";
-import {
-  endOfMonth,
-  getDay,
-  startOfMonth,
-  startOfToday,
-} from "date-fns-jalali";
 
 type TaskProps = {
   task: TaskType;
@@ -25,36 +21,22 @@ const Task = ({
   const project = utils.project.getAll
     .getData()
     ?.find((project) => project.id === projectId);
+  const currentMonthDate = useMonthDateState();
+  const startAndEndOfCurrentMonth = getStartAndEndOfMonth(currentMonthDate);
 
-  const dayIndex = getDay(dueDate);
-  const firstDayOfCurrentMonth = startOfToday();
   const update = api.task.update.useMutation({
     onMutate: async (newTask) => {
-      await utils.task.getAllTasks.cancel();
+      await utils.task.getAllTasks.cancel(startAndEndOfCurrentMonth);
 
-      const previousTasks = utils.task.getAllTasks.getData({
-        startDate: startOfMonth(firstDayOfCurrentMonth),
-        endDate: endOfMonth(firstDayOfCurrentMonth),
-      });
+      const previousTasks = utils.task.getAllTasks.getData(
+        startAndEndOfCurrentMonth,
+      );
 
       utils.task.getAllTasks.setData(
-        {
-          startDate: startOfMonth(firstDayOfCurrentMonth),
-          endDate: endOfMonth(firstDayOfCurrentMonth),
-        },
+        startAndEndOfCurrentMonth,
         (oldQueryData: TaskType[][] | undefined) => {
           if (oldQueryData === undefined) return;
-          const newTasks = oldQueryData.map((days, index) =>
-            index === dayIndex - 1
-              ? [
-                  ...days,
-                  {
-                    ...newTask,
-                    isCompleted: newTask?.isCompleted ?? false,
-                  },
-                ]
-              : days,
-          );
+
           return oldQueryData?.map((tasks) =>
             tasks.map((task) =>
               task.id === newTask.id
@@ -95,16 +77,18 @@ const Task = ({
           ? projectListColorClassMap[project.color]
           : "border-r-secondary",
         deleteTask.isPending ? "opacity-50" : "",
-        "flex items-center justify-between rounded px-4 py-2 text-secondary-foreground",
+        "flex items-center justify-between rounded px-2 py-1 text-secondary-foreground",
       )}
     >
-      <div className="flex items-center gap-2">
+      <div className="flex w-full items-center gap-2">
         <Checkbox
           id={`task-${id}`}
           onCheckedChange={onCheckboxChange}
           checked={isCompleted}
         />
-        <Label htmlFor={`task-${id}`}>{name}</Label>
+        <Label htmlFor={`task-${id}`} className="w-full pt-1 text-sm">
+          {name}
+        </Label>
       </div>
       {/* {!!project && (
         <Badge className={cn(colorClassMap[project.color], "size-5")} />

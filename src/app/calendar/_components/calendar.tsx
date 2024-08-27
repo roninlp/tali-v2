@@ -4,7 +4,6 @@ import { Button } from "@/components/ui/button";
 import { colStartClasses, weekDays } from "@/data/calendar-data";
 import { getStartAndEndOfMonth } from "@/helpers/date-helpers";
 import { cn } from "@/lib/utils";
-import { type TaskType } from "@/server/db/schema";
 import { useMonthActions, useMonthState } from "@/state/current-month";
 import { api } from "@/trpc/react";
 import { ChevronLeftIcon, ChevronRightIcon } from "@radix-ui/react-icons";
@@ -20,9 +19,8 @@ import {
   startOfToday,
 } from "date-fns-jalali";
 import { useState } from "react";
-import { AddTaskButton } from "./add-task-button";
 import Day from "./day";
-import { Skeleton } from "@/components/ui/skeleton";
+import { AddTaskButton } from "./task/add-task-button";
 
 export default function Calendar() {
   const today = startOfToday();
@@ -40,7 +38,7 @@ export default function Calendar() {
   const { data: allTasks, isPending } = api.task.getAllTasks.useQuery(
     getStartAndEndOfMonth(firstDayOfCurrentMonth),
     {
-      staleTime: 30 * 1000
+      staleTime: 30 * 1000,
     },
   );
 
@@ -80,9 +78,9 @@ export default function Calendar() {
             className={cn(
               dayIndex === 0 && colStartClasses[getDay(day)],
               !isEqual(day, selectedDay) &&
-              !isToday(day) &&
-              !isSameMonth(day, firstDayOfCurrentMonth) &&
-              "opacity-30",
+                !isToday(day) &&
+                !isSameMonth(day, firstDayOfCurrentMonth) &&
+                "opacity-30",
               isToday(day) && "bg-primary/10",
               "group relative flex flex-col items-start gap-1 overflow-clip border-b p-1",
             )}
