@@ -22,7 +22,7 @@ const CalendarLayout = async ({ children }: { children: ReactNode }) => {
         <ModeToggle />
       </div>
       <div className="flex h-full w-full flex-grow">
-        <div className="flex w-1/5  flex-col gap-4 px-4 py-8">
+        <div className="flex min-w-80 flex-col gap-4 px-4 py-8">
           <ProjectsList />
         </div>
         {children}

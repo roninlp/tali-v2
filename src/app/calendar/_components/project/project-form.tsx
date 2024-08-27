@@ -3,6 +3,7 @@
 import ColorSelect from "@/components/color-select";
 import { Button } from "@/components/ui/button";
 import {
+  Form,
   FormControl,
   FormDescription,
   FormField,
@@ -18,7 +19,7 @@ import { api } from "@/trpc/react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { format } from "date-fns-jalali";
 import { Dispatch, SetStateAction } from "react";
-import { Form, useForm } from "react-hook-form";
+import { useForm } from "react-hook-form";
 import { z } from "zod";
 
 interface NewProjectFormProps extends React.ComponentProps<"form"> {

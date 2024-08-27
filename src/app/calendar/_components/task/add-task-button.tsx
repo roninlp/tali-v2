@@ -38,7 +38,7 @@ export function AddTaskButton({ day }: AddTaskButtonProps) {
             variant="default"
             size="icon"
             className={cn(
-              "group/btn absolute bottom-1 left-1 scale-0 cursor-pointer items-center justify-center transition-all duration-300 ease-in-out group-hover:flex group-hover:scale-100",
+              "group/btn absolute bottom-1 left-1 z-30 scale-0 cursor-pointer items-center justify-center transition-all duration-300 ease-in-out group-hover:flex group-hover:scale-100",
               open ? "flex scale-100" : "",
             )}
           >
@@ -54,7 +54,7 @@ export function AddTaskButton({ day }: AddTaskButtonProps) {
 
   return (
     <Drawer open={open} onOpenChange={setOpen}>
-      <DrawerTrigger asChild>
+      <DrawerTrigger dir="rtl" asChild>
         <Button
           variant="default"
           size="icon"
@@ -65,17 +65,17 @@ export function AddTaskButton({ day }: AddTaskButtonProps) {
           <PlusIcon className="size-5 scale-100 transition-all group-hover/btn:scale-125" />
         </Button>
       </DrawerTrigger>
-      <DrawerContent>
+      <DrawerContent dir="rtl">
         <DrawerHeader className="text-left">
-          <DrawerTitle>پروژه جدید</DrawerTitle>
+          <DrawerTitle>تسک جدید</DrawerTitle>
           <DrawerDescription>
-            Make changes to your profile here. Click save when you&apos;re done.
+            یک تسک جدید برای یکی از پروژه‌ها اضافه کنید.
           </DrawerDescription>
         </DrawerHeader>
         <NewTaskForm setOpen={setOpen} day={day} className="px-4" />
         <DrawerFooter className="pt-2">
           <DrawerClose asChild>
-            <Button variant="outline">Cancel</Button>
+            <Button variant="outline">بستن</Button>
           </DrawerClose>
         </DrawerFooter>
       </DrawerContent>

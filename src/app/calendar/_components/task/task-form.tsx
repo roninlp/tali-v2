@@ -2,6 +2,7 @@
 
 import { Button } from "@/components/ui/button";
 import {
+  Form,
   FormControl,
   FormField,
   FormItem,
@@ -24,7 +25,7 @@ import { api } from "@/trpc/react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { getDate } from "date-fns-jalali";
 import { Dispatch, SetStateAction } from "react";
-import { Form, useForm } from "react-hook-form";
+import { useForm } from "react-hook-form";
 import { z } from "zod";
 
 interface NewTaskFormProps extends React.ComponentProps<"form"> {
@@ -37,7 +38,7 @@ export function NewTaskForm({ className, setOpen, day }: NewTaskFormProps) {
     defaultValues: {
       name: "",
       dueDate: day,
-      projectId: 1,
+      projectId: undefined,
     },
     resolver: zodResolver(newTaskSchema),
   });

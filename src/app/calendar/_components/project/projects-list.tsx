@@ -24,7 +24,7 @@ export default function ProjectsList() {
   );
 
   return (
-    <Card>
+    <Card className="h-full">
       <CardHeader>
         <CardTitle>پروژه‌ها</CardTitle>
         {isPending ? (

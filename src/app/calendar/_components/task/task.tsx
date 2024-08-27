@@ -2,7 +2,7 @@
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
-import { projectListColorClassMap } from "@/data/project-colors";
+import { colorClassMap } from "@/data/project-colors";
 import { getStartAndEndOfMonth } from "@/helpers/date-helpers";
 import { cn } from "@/lib/utils";
 import { type TaskType } from "@/server/db/schema";
@@ -72,15 +72,12 @@ const Task = ({
   return (
     <li
       className={cn(
-        "border border-r-4",
-        !!project
-          ? projectListColorClassMap[project.color]
-          : "border-r-secondary",
+        !!project && colorClassMap[project.color],
         deleteTask.isPending ? "opacity-50" : "",
-        "flex items-center justify-between rounded px-2 py-1 text-secondary-foreground",
+        "group/task flex items-center justify-between rounded px-2 py-1 text-secondary-foreground",
       )}
     >
-      <div className="flex w-full items-center gap-2">
+      <div className="flex flex-1 items-center gap-2">
         <Checkbox
           id={`task-${id}`}
           onCheckedChange={onCheckboxChange}
@@ -96,10 +93,10 @@ const Task = ({
       <Button
         size="icon"
         variant="outline"
-        className="size-6"
+        className="hidden aspect-square size-5 group-hover/task:flex"
         onClick={handleDeleteTask}
       >
-        <Cross2Icon />
+        <Cross2Icon className="size-3" />
       </Button>
     </li>
   );

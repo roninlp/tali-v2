@@ -1,7 +1,4 @@
-import { colorClassMap } from "@/data/project-colors";
-import { cn } from "@/lib/utils";
 import Circle from "@uiw/react-color-circle";
-import { Popover, PopoverContent, PopoverTrigger } from "./ui/popover";
 
 type ColorSelectPropType = {
   value: string | undefined;
@@ -12,7 +9,13 @@ type ColorSelectPropType = {
 const ColorSelect = ({ value, setValue, colors }: ColorSelectPropType) => {
   return (
     <div className="flex items-center gap-4">
-      <Popover>
+      <Circle
+        colors={colors}
+        pointProps={{ style: { width: "20px", height: "20px" } }}
+        onChange={(color) => setValue(color.hex)}
+        color={value}
+      />
+      {/* <Popover>
         <PopoverTrigger asChild>
           <div
             className={cn(
@@ -22,14 +25,8 @@ const ColorSelect = ({ value, setValue, colors }: ColorSelectPropType) => {
           ></div>
         </PopoverTrigger>
         <PopoverContent side="left" className="w-fit">
-          <Circle
-            colors={colors}
-            pointProps={{ style: { width: "20px", height: "20px" } }}
-            onChange={(color) => setValue(color.hex)}
-            color={value}
-          />
         </PopoverContent>
-      </Popover>
+      </Popover> */}
     </div>
   );
 };
