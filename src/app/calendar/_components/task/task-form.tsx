@@ -48,7 +48,7 @@ export function NewTaskForm({ className, setOpen, day }: NewTaskFormProps) {
 
   const { mutate } = api.task.create.useMutation({
     onMutate: async (newTask) => {
-      await utils.task.getAllTasks.cancel();
+      await utils.task.getAllTasks.cancel(monthObj);
       const previousTasks = utils.task.getAllTasks.getData(monthObj);
 
       utils.task.getAllTasks.setData(

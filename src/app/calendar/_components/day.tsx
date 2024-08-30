@@ -1,8 +1,17 @@
+"use client";
 import { Skeleton } from "@/components/ui/skeleton";
 import { cn } from "@/lib/utils";
 import { type TaskType } from "@/server/db/schema";
-import { format, isEqual, isSameMonth, isToday } from "date-fns-jalali";
+import {
+  format,
+  getDate,
+  isEqual,
+  isSameMonth,
+  isToday,
+} from "date-fns-jalali";
 import Task from "./task/task";
+import { useDroppable } from "@dnd-kit/core";
+import { Draggable } from "@/components/draggable";
 
 type DayProps = {
   tasks: TaskType[] | undefined;
@@ -19,8 +28,17 @@ export default function Day({
   tasks,
   isPending,
 }: DayProps) {
+  const dayIndex = getDate(day);
+  const { isOver, setNodeRef } = useDroppable({
+    id: `droppable-${dayIndex}`,
+    data: day,
+  });
+
   return (
-    <>
+    <div
+      ref={setNodeRef}
+      className={cn("h-full w-full", isOver ? "bg-primary/10" : "")}
+    >
       <div
         className={cn(
           isEqual(day, selectedDay) && "text-secondary-foreground",
@@ -47,9 +65,11 @@ export default function Day({
         <Skeleton className="h-6 w-full" />
       ) : (
         <ul className="relative flex w-full shrink flex-col gap-1">
-          {tasks?.map((task) => <Task key={task.id} task={task} />)}
+          {tasks?.map((task) => {
+            return <Task key={task.id} task={task} />;
+          })}
         </ul>
       )}
-    </>
+    </div>
   );
 }
