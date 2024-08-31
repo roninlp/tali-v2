@@ -75,8 +75,6 @@ const Task = ({ task }: TaskProps) => {
   };
   return (
     <li
-      {...attributes}
-      {...listeners}
       ref={setNodeRef}
       className={cn(
         !!project && colorClassMap[project.color],
@@ -85,6 +83,8 @@ const Task = ({ task }: TaskProps) => {
       )}
     >
       <div
+        {...attributes}
+        {...listeners}
         className={cn("ml-2", isDragging ? "cursor-grabbing" : "cursor-grab")}
       >
         <HamburgerMenuIcon className="size-3" />

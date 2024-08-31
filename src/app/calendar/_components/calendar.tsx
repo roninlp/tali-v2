@@ -14,6 +14,7 @@ import {
   getDate,
   getDay,
   isEqual,
+  isSameDay,
   isSameMonth,
   isToday,
   parse,
@@ -22,7 +23,7 @@ import {
 import { useState } from "react";
 import Day from "./day";
 import { AddTaskButton } from "./task/add-task-button";
-import { DndContext, DragOverlay, useDndContext } from "@dnd-kit/core";
+import { DndContext, DragOverlay } from "@dnd-kit/core";
 import {
   useDraggingActions,
   useDraggingTask,
@@ -126,7 +127,8 @@ export default function Calendar() {
         }}
         onDragEnd={(e) => {
           const overDate = e.over?.data.current as Date;
-          if (overDate !== draggingTask?.dueDate) {
+
+          if (!isSameDay(overDate, draggingTask?.dueDate!)) {
             update.mutate({
               id: e.active.id as number,
               dueDate: e.over?.data.current as Date,
