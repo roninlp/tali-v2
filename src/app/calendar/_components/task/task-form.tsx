@@ -10,6 +10,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import {
   Select,
   SelectContent,
@@ -105,56 +106,86 @@ export function NewTaskForm({ className, setOpen, day }: NewTaskFormProps) {
     <Form {...form}>
       <form
         onSubmit={form.handleSubmit(onSubmit)}
-        className={cn("grid items-start gap-4", className)}
+        className={cn(
+          "grid h-fit items-start gap-4 overflow-hidden p-1 transition-all",
+          className,
+        )}
       >
-        <FormField
-          control={form.control}
-          name="name"
-          render={({ field }) => (
-            <FormItem className="grid gap-2">
-              <FormLabel>عنوان تسک</FormLabel>
-              <FormControl>
-                <Input placeholder="عنوان تسک ..." {...field} />
-              </FormControl>
-              {/* <FormDescription>
-                نام تسک جدیدی که میخواهید اضافه کنید.
-              </FormDescription> */}
-              <FormMessage />
-            </FormItem>
+        <div
+          className={cn(
+            "transition-all",
+            !form.watch("projectId")
+              ? "translate-x-0"
+              : "h-0 -translate-x-[calc(100%_+_5px)]",
           )}
-        />
-        <FormField
-          control={form.control}
-          name="projectId"
-          render={({ field }) => (
-            <FormItem className="grid gap-2">
-              <FormLabel>پروژه</FormLabel>
-              <Select
-                dir="rtl"
-                onValueChange={(val) => form.setValue("projectId", +val)}
-              >
+        >
+          <FormField
+            control={form.control}
+            name="projectId"
+            render={({ field }) => (
+              <FormItem className={cn("space-y-3 transition-all duration-500")}>
+                <FormLabel>انتخاب پروژه</FormLabel>
                 <FormControl>
-                  <SelectTrigger>
-                    <SelectValue placeholder="انتخاب پروژه" />
-                  </SelectTrigger>
+                  <RadioGroup
+                    onValueChange={(val) => {
+                      form.setValue("projectId", +val);
+                      form.setValue(
+                        "name",
+                        projectsOptions.find((prj) => prj.value == +val)
+                          ?.label!,
+                      );
+                    }}
+                    defaultValue={String(field.value)}
+                    className="flex flex-col space-y-1"
+                  >
+                    {projectsOptions.map((project) => (
+                      <FormItem
+                        key={project.value}
+                        className="flex items-center gap-3 space-y-0 rounded border border-primary p-2"
+                      >
+                        <FormControl>
+                          <RadioGroupItem value={String(project.value)} />
+                        </FormControl>
+                        <FormLabel className="flex-1 font-normal">
+                          {project.label}
+                        </FormLabel>
+                      </FormItem>
+                    ))}
+                  </RadioGroup>
                 </FormControl>
-                <SelectContent>
-                  {projectsOptions.map((project) => (
-                    <SelectItem
-                      key={project.value}
-                      value={project.value.toString()}
-                    >
-                      {project.label}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              <FormMessage />
-            </FormItem>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        </div>
+        <div
+          className={cn(
+            "transition-all",
+            !!form.watch("projectId")
+              ? "translate-x-0"
+              : "h-0 translate-x-[calc(100%_+_5px)]",
           )}
-        />
+        >
+          <FormField
+            control={form.control}
+            name="name"
+            render={({ field }) => (
+              <FormItem
+                className={cn("grid gap-2 transition-transform duration-500")}
+              >
+                <FormLabel>عنوان تسک</FormLabel>
+                <FormControl>
+                  <Input placeholder="عنوان تسک ..." {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        </div>
 
-        <Button type="submit">ذخیره</Button>
+        {!!form.watch("projectId") ? (
+          <Button type="submit">ذخیره</Button>
+        ) : null}
       </form>
     </Form>
   ) : (
