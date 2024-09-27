@@ -39,9 +39,10 @@ export const taskRouter = createTRPCRouter({
 
       const targetEnd = endOfDay(input.endDate);
       const daysBetweenStartAndEnd = differenceInDays(
-        endOfDay(input.endDate),
+        endOfDay(addDays(input.endDate, 1)),
         startOfDay(input.startDate),
       );
+      console.log("daysBetweenStartAndEnd", daysBetweenStartAndEnd);
 
       //create an array of dates between startDate and endDate that have the date as values
       const datesBetweenStartAndEnd = Array.from(

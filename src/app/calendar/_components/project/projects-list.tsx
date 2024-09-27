@@ -23,6 +23,14 @@ export default function ProjectsList() {
     getStartAndEndOfMonth(currentMonth),
   );
 
+  const projectLength =
+    allTasks &&
+    data?.filter(
+      (project) =>
+        allTasks?.flat().filter((task) => task.projectId === project.id)
+          ?.length > 0,
+    ).length;
+
   return (
     <Card className="h-full">
       <CardHeader>
@@ -30,7 +38,11 @@ export default function ProjectsList() {
         {isPending ? (
           <Skeleton className="h-10 w-full" />
         ) : (
-          <CardDescription>{data?.length} پروژه</CardDescription>
+          <CardDescription>
+            {projectLength > 0
+              ? `${projectLength} پروژه`
+              : "هیچ پروژه ای وجود ندارد"}
+          </CardDescription>
         )}
       </CardHeader>
       <CardContent>
@@ -41,15 +53,18 @@ export default function ProjectsList() {
             </AddProjectButton>
           </div>
           <ul className="flex flex-col gap-4">
-            {data?.map((project) => (
-              <ProjectComponent
-                key={project.id}
-                project={project}
-                tasks={allTasks
-                  ?.flat()
-                  .filter((task) => task.projectId === project.id)}
-              />
-            ))}
+            {data?.map((project) => {
+              const projectsTasks = allTasks
+                ?.flat()
+                .filter((task) => task.projectId === project.id);
+              return projectsTasks && projectsTasks?.length > 0 ? (
+                <ProjectComponent
+                  key={project.id}
+                  project={project}
+                  tasks={projectsTasks}
+                />
+              ) : null;
+            })}
           </ul>
         </div>
       </CardContent>

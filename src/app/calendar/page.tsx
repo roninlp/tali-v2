@@ -1,6 +1,13 @@
 import { getServerAuthSession } from "@/server/auth";
 import { api } from "@/trpc/server";
-import { endOfMonth, getMonth, getWeeksInMonth, startOfMonth, startOfToday, subDays } from "date-fns-jalali";
+import {
+  endOfMonth,
+  getMonth,
+  getWeeksInMonth,
+  startOfMonth,
+  startOfToday,
+  subDays,
+} from "date-fns-jalali";
 import Calendar from "./_components/calendar";
 
 const CalendarPage = async () => {
