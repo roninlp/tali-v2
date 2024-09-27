@@ -39,7 +39,7 @@ export default function ProjectsList() {
           <Skeleton className="h-10 w-full" />
         ) : (
           <CardDescription>
-            {projectLength > 0
+            {projectLength && projectLength > 0
               ? `${projectLength} پروژه`
               : "هیچ پروژه ای وجود ندارد"}
           </CardDescription>
